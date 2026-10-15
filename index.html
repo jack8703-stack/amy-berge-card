@@ -33,8 +33,9 @@
   }
   .wrap{ max-width:420px; margin:0 auto; padding:34px 20px 48px;
     display:flex; flex-direction:column; align-items:center; text-align:center; }
-  .frame{ width:100%; border:1px solid var(--line); border-radius:14px;
-    padding:30px 22px 26px; position:relative; background:rgba(255,253,247,.35); backdrop-filter:blur(2px); }
+  .frame{ width:100%; position:relative; }
+  .hero{ width:100%; display:block; border-radius:12px; margin-bottom:14px;
+    box-shadow:0 14px 34px -16px rgba(90,70,40,.35); }
   .sprig{ width:92px; height:60px; margin:0 auto 6px; display:block; }
   .name{ font-family:var(--font-script); font-weight:400; font-size:3.5rem; line-height:1;
     margin:.1em 0 .15em; color:var(--ink); }
@@ -71,23 +72,7 @@
 <body>
   <main class="wrap">
     <div class="frame">
-      <svg class="sprig" viewBox="0 0 120 78" fill="none" stroke="var(--gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-        <g opacity="0.9">
-          <path d="M60 70 C60 54 60 44 60 34"/>
-          <path d="M60 52 C50 50 42 44 40 36" stroke="#9aa06a"/>
-          <path d="M60 50 C70 48 78 42 80 34" stroke="#9aa06a"/>
-          <circle cx="60" cy="26" r="9"/>
-          <path d="M60 17 C66 17 70 21 70 26"/>
-          <path d="M60 35 C54 35 50 31 50 26"/>
-          <circle cx="42" cy="30" r="6"/><circle cx="78" cy="30" r="6"/>
-          <circle cx="60" cy="26" r="2.2" fill="var(--gold)"/>
-        </g>
-      </svg>
-      <h1 class="name">Amy Berge</h1>
-      <svg class="flourish" viewBox="0 0 120 10" fill="none" stroke="var(--gold)" stroke-width="1.2" stroke-linecap="round">
-        <path d="M6 5 Q30 0 54 5"/><path d="M114 5 Q90 0 66 5"/>
-        <rect x="57" y="2" width="6" height="6" transform="rotate(45 60 5)" fill="var(--gold)" stroke="none"/>
-      </svg>
+      <img class="hero" src="hero.jpg" alt="Amy Berge — Louisville, Kentucky">
       <div class="sub">Principal Partner &middot; Gray Ice Higdon</div>
       <div class="practice">Trademark, Copyright &amp; Technology</div>
 
@@ -117,7 +102,6 @@
         Save to my contacts
       </a>
       <div class="hint">Add me to your phone &mdash; no app needed</div>
-      <div class="foot">Louisville &middot; Kentucky</div>
     </div>
   </main>
 <script>
