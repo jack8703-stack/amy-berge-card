@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Earl Bowman</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* Earl Bowman — artist card. Warm Americana brown/sepia, cinematic depth, film grain. */
+  :root{
+    --bg1:#2a1d12; --bg2:#1a110a; --warm:#4a3420; --cream:#efe4d1; --tan:#c9a86a; --tan2:#e3c791;
+    --muted:#a88f72; --green:#1db954;
+    --serif:"Playfair Display", Georgia, serif; --sans:"Jost","Segoe UI",system-ui,sans-serif;
+    color-scheme: dark;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--bg2);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .bg{position:fixed;inset:0;z-index:0;background:
+     radial-gradient(90% 60% at 50% 12%, #3c2a18, transparent 70%),
+     radial-gradient(120% 80% at 50% 108%, #1e130b, transparent 60%),
+     linear-gradient(180deg,var(--bg1),var(--bg2));
+     animation:breathe 9s ease-in-out infinite}
+  @keyframes breathe{0%,100%{filter:brightness(1)}50%{filter:brightness(1.1)}}
+  /* film grain */
+  .grain{position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:.07;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation:grain 1.2s steps(3) infinite}
+  @keyframes grain{0%{transform:translate(0,0)}33%{transform:translate(-6%,4%)}66%{transform:translate(4%,-5%)}100%{transform:translate(0,0)}}
+
+  .wrap{position:relative;z-index:2;max-width:420px;margin:0 auto;padding:34px 20px 46px;text-align:center;perspective:1200px}
+  .stack{position:relative;display:flex;justify-content:center}
+  .disc{position:absolute;top:50%;left:50%;width:128%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;z-index:0;
+    background:repeating-radial-gradient(circle, rgba(255,255,255,.022) 0 1px, transparent 1px 3px),
+      conic-gradient(from 0deg,#090705,#241913 11%,#090705 24%,#1b120c 46%,#090705 58%,#261b15 78%,#090705);
+    box-shadow:0 34px 66px -30px #000;animation:spin 18s linear infinite}
+  .disc::after{content:"";position:absolute;top:50%;left:50%;width:30%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle,#0a0806 0 12%,#c9a86a 13% 90%,#0a0806 92%);box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+  @keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+  .cover{position:relative;z-index:2;width:100%;border-radius:16px;overflow:hidden;transform-style:preserve-3d;
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .14s ease-out;
+    box-shadow:0 40px 80px -30px #000, 0 0 60px -26px rgba(201,168,106,.5);
+    animation:coverin 1.1s cubic-bezier(.2,.8,.2,1) both}
+  @keyframes coverin{from{opacity:0;transform:translateY(22px) scale(.94) rotateX(10deg)}to{opacity:1}}
+  .cover img{width:100%;display:block}
+  .cover .sweep{position:absolute;top:-20%;bottom:-20%;width:45%;left:-60%;
+    background:linear-gradient(100deg,transparent,rgba(255,240,210,.22),transparent);transform:skewX(-16deg);
+    animation:sweep 7s ease-in-out 1.6s infinite}
+  @keyframes sweep{0%{left:-60%}30%{left:130%}100%{left:130%}}
+  .cover .vig{position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(0,0,0,.4);border-radius:16px;pointer-events:none}
+
+  .eq{display:flex;align-items:flex-end;justify-content:center;gap:4px;height:26px;margin:16px 0 2px;opacity:0;animation:fin .6s ease .5s forwards}
+  .eq i{width:3px;background:linear-gradient(var(--tan2),var(--tan));border-radius:2px;animation:bar 1s ease-in-out infinite}
+  .eq i:nth-child(1){height:40%;animation-delay:0s}.eq i:nth-child(2){height:80%;animation-delay:.2s}
+  .eq i:nth-child(3){height:55%;animation-delay:.4s}.eq i:nth-child(4){height:95%;animation-delay:.1s}
+  .eq i:nth-child(5){height:65%;animation-delay:.3s}.eq i:nth-child(6){height:45%;animation-delay:.5s}
+  .eq i:nth-child(7){height:78%;animation-delay:.15s}
+  @keyframes bar{0%,100%{transform:scaleY(.5)}50%{transform:scaleY(1)}}
+
+  .tagline{font-family:var(--serif);font-style:italic;font-size:1.06rem;color:var(--tan2);margin:6px 0 0;opacity:0;animation:fin .6s ease .62s forwards}
+  .loc{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:5px 0 0;opacity:0;animation:fin .6s ease .72s forwards}
+  @keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .btns{display:flex;flex-direction:column;gap:11px;margin-top:22px}
+  .btn{display:flex;align-items:center;gap:13px;padding:14px 18px;border-radius:12px;text-decoration:none;
+    border:1px solid rgba(227,199,145,.22);background:rgba(227,199,145,.05);color:var(--cream);
+    font:500 1rem var(--sans);opacity:0;animation:fin .55s ease forwards;transition:border-color .15s,background .15s,transform .1s}
+  .btn:hover{border-color:var(--tan);background:rgba(227,199,145,.1);transform:translateY(-1px)}
+  .btn .ic{width:22px;height:22px;flex:none}
+  .btn .t{flex:1;text-align:left}
+  .btn .t small{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:400}
+  .btn.spotify{background:rgba(29,185,84,.14);border-color:rgba(29,185,84,.4)}
+  .btn.spotify:hover{background:rgba(29,185,84,.22)}
+  .btn:nth-of-type(1){animation-delay:.8s}.btn:nth-of-type(2){animation-delay:.9s}
+  .btn:nth-of-type(3){animation-delay:1.0s}.btn:nth-of-type(4){animation-delay:1.1s}
+  .foot{margin-top:24px;font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--muted);opacity:0;animation:fin .6s ease 1.2s forwards}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important}.cover{transition:none}}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="grain"></div>
+  <main class="wrap">
+    <div class="stack">
+      <div class="disc"></div>
+      <div class="cover" id="cover">
+        <img src="earl-cover.jpg" alt="Earl Bowman — We Get Along">
+        <div class="sweep"></div>
+        <div class="vig"></div>
+      </div>
+    </div>
+    <div class="eq"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="tagline">Singer &middot; Songwriter</div>
+    <div class="loc">Louisville, Kentucky</div>
+
+    <div class="btns">
+      <a class="btn spotify" href="https://open.spotify.com/artist/2ENqF6QA7kOoUnd5FYULJW" target="_blank" rel="noopener">
+        <svg class="ic" viewBox="0 0 24 24" fill="#1db954"><path d="M12 0a12 12 0 100 24 12 12 0 000-24zm5.5 17.3a.75.75 0 01-1 .25c-2.8-1.7-6.3-2.1-10.4-1.15a.75.75 0 11-.33-1.46c4.5-1 8.4-.56 11.5 1.36.36.22.47.69.25 1zm1.47-3.26a.94.94 0 01-1.28.31c-3.2-1.97-8.08-2.54-11.87-1.39a.94.94 0 11-.54-1.8c4.33-1.3 9.7-.67 13.38 1.6.44.27.58.85.31 1.28zm.13-3.4C15.4 8.3 8.9 8.08 5.3 9.17a1.12 1.12 0 11-.65-2.15c4.13-1.25 11.3-1 15.76 1.65a1.12 1.12 0 01-1.17 1.92z"/></svg>
+        <span class="t">Listen on Spotify<small>Wannabe &middot; Live at the Monarch</small></span>
+      </a>
+      <a class="btn" href="https://music.apple.com/us/artist/earl-bowman/1639807920" target="_blank" rel="noopener">
+        <svg class="ic" viewBox="0 0 24 24" fill="#e3c791"><path d="M18 3.2c-.3 0-5.7 1.2-8.2 1.7-.5.1-.8.5-.8 1v9.4a3 3 0 10.9 2.1V9.4l7-1.5v4.6a3 3 0 10.9 2.1V4.1c0-.6-.5-1-1-.9z"/></svg>
+        <span class="t">Apple Music<small>So Stoned &middot; Friday About 5</small></span>
+      </a>
+      <a class="btn" href="https://www.facebook.com/earlbowmanmusic/" target="_blank" rel="noopener">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#e3c791" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 15c1.2 1.2 2.6 1.8 4 1.8s2.8-.6 4-1.8"/><circle cx="9" cy="10" r="1" fill="#e3c791"/><circle cx="15" cy="10" r="1" fill="#e3c791"/></svg>
+        <span class="t">Follow Earl<small>@earlbowmanmusic</small></span>
+      </a>
+      <a class="btn" href="https://www.earlbowmanmusic.com" target="_blank" rel="noopener">
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="#e3c791" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg>
+        <span class="t">earlbowmanmusic.com<small>Shows &middot; Booking</small></span>
+      </a>
+    </div>
+    <div class="foot">Louisville &middot; Americana</div>
+  </main>
+<script>
+  // cinematic parallax tilt — pointer + gyro
+  var cover=document.getElementById("cover");
+  function tilt(ry,rx){ cover.style.setProperty("--ry",ry.toFixed(2)+"deg"); cover.style.setProperty("--rx",rx.toFixed(2)+"deg"); }
+  addEventListener("pointermove",function(e){ var dx=(e.clientX/innerWidth-.5), dy=(e.clientY/innerHeight-.5); tilt(dx*9,-dy*9); });
+  function gyro(e){ var g=Math.max(-12,Math.min(12,(e.gamma||0)*.45)), b=Math.max(-12,Math.min(12,((e.beta||0)-45)*.35)); tilt(g,-b); }
+  addEventListener("touchstart",function(){ if(window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission==="function"){
+      DeviceOrientationEvent.requestPermission().then(function(s){ if(s==="granted") addEventListener("deviceorientation",gyro); }).catch(function(){});
+    } else if(window.DeviceOrientationEvent){ addEventListener("deviceorientation",gyro); } },{once:true});
+</script>
+</body>
+</html>
