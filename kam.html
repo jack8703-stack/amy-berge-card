@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kamdin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  /* Kamdin — photography. Smoke clears to reveal a drift car. Dark neon. */
+  :root{ --ink:#f3f6fb; --muted:#9aa4b4; --cyan:#22d3ee; --mag:#ff2d78; --orange:#ff7a1f;
+    --head:"Oswald","Arial Narrow",sans-serif; --body:"Jost","Segoe UI",system-ui,sans-serif; color-scheme:dark; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:#070709;color:var(--ink);font-family:var(--body);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  .scene{position:relative;min-height:100%;overflow:hidden}
+  .photo{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+    filter:blur(18px) brightness(.4) saturate(1.1);transform:scale(1.12);
+    animation:reveal 3.2s cubic-bezier(.2,.7,.2,1) .3s forwards}
+  @keyframes reveal{to{filter:blur(0) brightness(.7) saturate(1.1);transform:scale(1.04)}}
+  .tint{position:fixed;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg, rgba(7,7,9,.35) 0%, rgba(7,7,9,.15) 40%, rgba(7,7,9,.75) 78%, #070709 100%)}
+  /* neon color haze */
+  .glows{position:fixed;inset:0;z-index:1;pointer-events:none;mix-blend-mode:screen;opacity:.7;
+    background:
+      radial-gradient(40% 30% at 22% 26%, rgba(255,45,120,.5), transparent 70%),
+      radial-gradient(42% 30% at 82% 22%, rgba(255,122,31,.45), transparent 70%),
+      radial-gradient(50% 36% at 78% 82%, rgba(138,43,226,.5), transparent 70%),
+      radial-gradient(40% 30% at 18% 86%, rgba(34,211,238,.4), transparent 70%);
+    animation:breathe 7s ease-in-out infinite}
+  @keyframes breathe{0%,100%{opacity:.6}50%{opacity:.85}}
+  /* drifting smoke that clears */
+  .smoke{position:fixed;inset:-40%;z-index:2;pointer-events:none;mix-blend-mode:screen;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='700' height='700'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.009 0.013' numOctaves='3' seed='7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+    filter:brightness(1.7) contrast(.7)}
+  .s1{opacity:.95;animation:drift1 3s ease-out .2s forwards}
+  .s2{opacity:.8;transform:scale(1.4) rotate(6deg);animation:drift2 3.4s ease-out forwards}
+  @keyframes drift1{0%{opacity:.95;transform:scale(1) translateX(0)}100%{opacity:0;transform:scale(1.5) translateX(14%)}}
+  @keyframes drift2{0%{opacity:.8;transform:scale(1.4) translateX(0) rotate(6deg)}100%{opacity:0;transform:scale(2) translateX(-16%) rotate(-4deg)}}
+
+  .wrap{position:relative;z-index:4;min-height:100%;display:flex;flex-direction:column;justify-content:flex-end;
+    max-width:460px;margin:0 auto;padding:0 22px 40px;text-align:center}
+  .content{opacity:0;animation:up .9s ease 2.5s forwards}
+  @keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .aperture{width:92px;height:92px;margin:0 auto 14px;display:block;opacity:0;animation:ap 1s ease 2.7s forwards}
+  @keyframes ap{from{opacity:0;transform:rotate(-40deg) scale(.7)}to{opacity:.95;transform:none}}
+  .name{font-family:var(--head);font-weight:700;font-size:3.4rem;letter-spacing:.14em;margin:0;line-height:1;
+    text-shadow:0 2px 30px rgba(0,0,0,.6)}
+  .sub{font-size:.72rem;letter-spacing:.34em;text-transform:uppercase;color:var(--cyan);margin:10px 0 0}
+  .btns{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+  .btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;border-radius:12px;text-decoration:none;
+    color:var(--ink);font:500 1rem var(--body);border:1px solid rgba(255,255,255,.14);
+    background:rgba(255,255,255,.06);backdrop-filter:blur(8px);transition:border-color .15s,background .15s,transform .1s}
+  .btn:hover{border-color:var(--cyan);background:rgba(34,211,238,.14);transform:translateY(-1px)}
+  .btn svg{width:19px;height:19px}
+  .foot{margin-top:18px;font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted);opacity:.7}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-delay:0ms!important}.photo{filter:brightness(.7)}}
+</style>
+</head>
+<body>
+  <main class="scene">
+    <img class="photo" src="kam-car.jpg?auto" alt="">
+    <div class="tint"></div>
+    <div class="glows"></div>
+    <div class="smoke s1"></div>
+    <div class="smoke s2"></div>
+    <div class="wrap">
+      <div class="content">
+        <svg class="aperture" viewBox="0 0 100 100" fill="none" stroke="#dff6ff" stroke-width="2" stroke-linecap="round">
+          <circle cx="50" cy="50" r="46" stroke="rgba(223,246,255,.5)"/>
+          <g stroke="var(--cyan)">
+            <line x1="26" y1="18" x2="74" y2="46"/><line x1="82" y1="40" x2="62" y2="86"/>
+            <line x1="70" y1="90" x2="22" y2="70"/><line x1="16" y1="76" x2="34" y2="28"/>
+            <line x1="28" y1="16" x2="78" y2="36"/><line x1="84" y1="58" x2="40" y2="88"/>
+          </g>
+        </svg>
+        <h1 class="name">KAMDIN</h1>
+        <div class="sub">Photography &middot; Louisville</div>
+        <div class="btns">
+          <a class="btn" href="#" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="var(--cyan)"/></svg>
+            Instagram
+          </a>
+          <a class="btn" href="#" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="12" cy="12" r="3.2"/></svg>
+            View Portfolio
+          </a>
+          <a class="btn" href="#" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>
+            Save Contact
+          </a>
+        </div>
+        <div class="foot">Louisville &middot; Kentucky</div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
