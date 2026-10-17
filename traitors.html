@@ -72,6 +72,8 @@
   .big.t{color:var(--traitor)} .big.g{color:var(--faithful)}
   .drink{margin-top:16px;background:rgba(216,181,106,.1);border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center;color:var(--gold);font-family:var(--serif);font-size:1.15rem}
   .foot{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:24px}
+  .note2{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px;display:flex;flex-direction:column;gap:6px;font-size:.9rem;color:var(--muted);line-height:1.45}
+  .note2 .h{font-family:var(--serif);font-size:1.1rem;color:var(--gold)} .note2 b{color:var(--cream)}
   .tally{color:var(--muted);text-align:center;margin-top:10px;font-size:.95rem}
 </style>
 
@@ -79,6 +81,12 @@
   <!-- SETUP -->
   <section class="scr on" id="s-setup">
     <div style="margin-top:4px"><h1>The Traitors</h1><div class="kick">Gather the table.</div></div>
+    <div class="note2">
+      <span class="h">You're trying an early version</span>
+      <span><b>Right now:</b> one phone runs the game — pass it around the table for the secret parts.</span>
+      <span><b>Where it's going:</b> everyone taps an NFC card with their own phone. Roles deal to each of you privately, and all phones flip at the same moment for the reveal — no passing.</span>
+      <span>It's a Christmas gift in the works. Play a round, then tell Jack: was it fun? What'd make it better?</span>
+    </div>
     <div class="addrow"><input id="nameIn" placeholder="Add a player…" maxlength="14" autocomplete="off"><button id="addBtn" aria-label="add">+</button></div>
     <ul class="plist" id="plist"></ul>
     <div class="opt"><div class="lbl"><b id="tVal">1</b><span>Traitors</span></div>
@@ -87,7 +95,22 @@
       <div class="seg"><button id="mNorm" class="sel">Normal</button><button id="mDark">After Dark</button></div></div>
     <div class="err" id="setupErr"></div>
     <button class="btn" id="startBtn">Deal the roles</button>
+    <button class="btn ghost" id="howBtn">How to play</button>
     <div class="foot">A game for the whole table</div>
+  </section>
+
+  <!-- RULES -->
+  <section class="scr" id="s-rules">
+    <div style="margin-top:4px"><h2>How to play</h2></div>
+    <div class="narr" style="text-align:left;max-width:34em">
+      <p><b style="color:var(--traitor)">A few of you are secretly Traitors.</b> Everyone else is Faithful — and nobody knows who's who.</p>
+      <p><b style="color:var(--faithful)">Faithful</b> want to find and banish every Traitor. <b style="color:var(--traitor)">Traitors</b> want to survive without getting caught.</p>
+      <p>Each round has two parts:</p>
+      <p>&bull;&nbsp; <b>Night</b> — the Traitors secretly murder one Faithful.<br>&bull;&nbsp; <b>Day</b> — everyone argues, then votes to banish one person. Their role is revealed.</p>
+      <p><b style="color:var(--faithful)">Faithful win</b> by banishing all the Traitors. <b style="color:var(--traitor)">Traitors win</b> the moment they equal the Faithful in number.</p>
+      <p>The card is your host — it tells you exactly what to do at every step. Just follow along.</p>
+    </div>
+    <button class="btn" id="rulesBack">Got it — let's play</button>
   </section>
 
   <!-- REVEAL -->
@@ -123,7 +146,7 @@
 
 <script>
   var $=function(id){return document.getElementById(id)};
-  function show(id){ ['s-setup','s-reveal','s-phase','s-over'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  function show(id){ ['s-setup','s-rules','s-reveal','s-phase','s-over'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
   var names=[], T=1, dark=false, players=[], idx=0, day=0, plainUsed=false, pendingDeath=null;
 
   // ---- setup ----
@@ -143,6 +166,7 @@
   $('tP').onclick=function(){ T++; clampT(); }; $('tM').onclick=function(){ T--; clampT(); };
   $('mNorm').onclick=function(){ dark=false; $('mNorm').classList.add('sel'); $('mDark').classList.remove('sel'); };
   $('mDark').onclick=function(){ dark=true; $('mDark').classList.add('sel'); $('mNorm').classList.remove('sel'); };
+  $('howBtn').onclick=function(){ show('s-rules'); }; $('rulesBack').onclick=function(){ show('s-setup'); };
 
   function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
   var FLAV_T=["Murder by moonlight.","Blend in. Betray them all.","Smile. Lie. Win.","You hunt with the others."];
