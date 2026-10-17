@@ -89,7 +89,9 @@
     </div>
     <div class="addrow"><input id="nameIn" placeholder="Add a player…" maxlength="14" autocomplete="off"><button id="addBtn" aria-label="add">+</button></div>
     <ul class="plist" id="plist"></ul>
-    <div class="opt"><div class="lbl"><b id="tVal">1</b><span>Traitors</span></div>
+    <div class="opt"><div class="lbl"><b>Traitors</b><span>keep it secret for max paranoia</span></div>
+      <div class="seg"><button id="tcSecret" class="sel">Secret</button><button id="tcSet">I'll set</button></div></div>
+    <div class="opt" id="tStepRow" hidden><div class="lbl"><b id="tVal">1</b><span>how many</span></div>
       <div class="stepper"><button id="tM" aria-label="fewer">–</button><button id="tP" aria-label="more">+</button></div></div>
     <div class="opt"><div class="lbl"><b>Mode</b><span>After Dark adds drinks</span></div>
       <div class="seg"><button id="mNorm" class="sel">Normal</button><button id="mDark">After Dark</button></div></div>
@@ -147,7 +149,7 @@
 <script>
   var $=function(id){return document.getElementById(id)};
   function show(id){ ['s-setup','s-rules','s-reveal','s-phase','s-over'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
-  var names=[], T=1, dark=false, players=[], idx=0, day=0, plainUsed=false, pendingDeath=null;
+  var names=[], T=1, dark=false, secret=true, players=[], idx=0, day=0, plainUsed=false, pendingDeath=null;
 
   // ---- setup ----
   function loadNames(){ try{ var v=JSON.parse(localStorage.getItem('traitorsCrew')||'[]'); if(Array.isArray(v)) names=v; }catch(e){} }
@@ -164,6 +166,9 @@
   $('addBtn').onclick=addName;
   $('nameIn').addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); addName(); } });
   $('tP').onclick=function(){ T++; clampT(); }; $('tM').onclick=function(){ T--; clampT(); };
+  $('tcSecret').onclick=function(){ secret=true; $('tcSecret').classList.add('sel'); $('tcSet').classList.remove('sel'); $('tStepRow').hidden=true; };
+  $('tcSet').onclick=function(){ secret=false; $('tcSet').classList.add('sel'); $('tcSecret').classList.remove('sel'); $('tStepRow').hidden=false; clampT(); };
+  function randTraitors(n){ var max=Math.max(1,Math.floor(n/2)); var base=Math.max(1,Math.round(n/4)); var opts=[base]; if(base+1<=max) opts.push(base+1); return opts[Math.floor(Math.random()*opts.length)]; }
   $('mNorm').onclick=function(){ dark=false; $('mNorm').classList.add('sel'); $('mDark').classList.remove('sel'); };
   $('mDark').onclick=function(){ dark=true; $('mDark').classList.add('sel'); $('mNorm').classList.remove('sel'); };
   $('howBtn').onclick=function(){ show('s-rules'); }; $('rulesBack').onclick=function(){ show('s-setup'); };
@@ -175,7 +180,8 @@
   $('startBtn').onclick=function(){
     if(names.length<4){ $('setupErr').textContent='Add at least 4 players.'; return; }
     $('setupErr').textContent='';
-    var roles=[]; for(var i=0;i<names.length;i++) roles.push(i<T?'t':'g'); shuffle(roles);
+    var useT = secret ? randTraitors(names.length) : T;
+    var roles=[]; for(var i=0;i<names.length;i++) roles.push(i<useT?'t':'g'); shuffle(roles);
     players=names.map(function(n,i){ return {name:n,role:roles[i],alive:true}; });
     day=0; plainUsed=false; idx=0; startReveal();
   };
@@ -299,7 +305,7 @@
     if(dark){ var d=document.createElement('div'); d.className='drink'; d.textContent=faithWin?'Traitors — finish your drinks.':'Faithful — drink up, you were fooled.'; wrap.appendChild(d); }
     show('s-over');
   }
-  $('again').onclick=function(){ var roles=[]; for(var i=0;i<names.length;i++) roles.push(i<T?'t':'g'); shuffle(roles);
+  $('again').onclick=function(){ var useT = secret ? randTraitors(names.length) : T; var roles=[]; for(var i=0;i<names.length;i++) roles.push(i<useT?'t':'g'); shuffle(roles);
     players=names.map(function(n,i){ return {name:n,role:roles[i],alive:true}; }); day=0; plainUsed=false; idx=0; startReveal(); };
   $('newtable').onclick=function(){ show('s-setup'); };
 
