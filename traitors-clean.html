@@ -76,20 +76,29 @@
   .foot{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:24px}
   .note2{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-top:14px;display:flex;flex-direction:column;gap:6px;font-size:.9rem;color:var(--muted);line-height:1.45}
   .note2 .h{font-family:var(--serif);font-size:1.1rem;color:var(--gold)} .note2 b{color:var(--cream)}
+  .intro{margin:20px 0;display:flex;flex-direction:column;gap:15px;font-size:1.12rem;line-height:1.5;color:var(--cream);text-align:left;max-width:30em}
+  .intro .ih{font-family:var(--serif);font-size:1.6rem;color:var(--gold);text-align:center;margin:0 0 2px}
+  .intro p{margin:0} .intro b{color:var(--cream)}
   .tally{color:var(--muted);text-align:center;margin-top:10px;font-size:.95rem}
 </style>
 
 <div class="app">
-  <!-- SETUP -->
-  <section class="scr on" id="s-setup">
-    <div style="margin-top:4px"><h1>The Traitors</h1><div class="kick">Gather the table.</div></div>
-    <div class="note2">
-      <span class="h">Heads up â€” this is a preview</span>
-      <span>This is an <b>early, preliminary version</b>, and it will <b>change soon.</b></span>
-      <span><b>Right now:</b> one phone runs the game and you pass it around for the secret parts. It's a little clunky â€” that's the preview.</span>
-      <span><b>Coming very soon:</b> everyone plays on <b>their own phone</b> â€” same link, your role stays private, nobody passes anything. That's the real version.</span>
-      <span>So judge the <b>game itself</b>, not the phone-passing. Play a round and tell Jack what you think.</span>
+  <!-- INTRO -->
+  <section class="scr on ctr" id="s-intro">
+    <h1>The Traitors</h1>
+    <div class="intro">
+      <p class="ih">Before you play â€” read this</p>
+      <p>This is an <b style="color:var(--gold)">early preview</b>, and it will change soon.</p>
+      <p><b>Right now</b> it runs on <b>one phone</b> â€” you pass it around the table for the secret parts. A little clunky.</p>
+      <p><b>Very soon</b> everyone plays on <b>their own phone</b> â€” same link, your role stays private, nobody passes anything. That's the real version.</p>
+      <p>So judge the <b>game itself</b>, not the phone-passing â€” and tell Jack what you think.</p>
     </div>
+    <button class="btn" id="introGo">Got it â€” set up a game</button>
+  </section>
+
+  <!-- SETUP -->
+  <section class="scr" id="s-setup">
+    <div style="margin-top:4px"><h1>The Traitors</h1><div class="kick">Gather the table.</div></div>
     <div class="addrow"><input id="nameIn" placeholder="Add a playerâ€¦" maxlength="14" autocomplete="off"><button id="addBtn" aria-label="add">+</button></div>
     <ul class="plist" id="plist"></ul>
     <div class="opt"><div class="lbl"><b>Traitors</b><span>keep it secret for max paranoia</span></div>
@@ -149,7 +158,8 @@
 
 <script>
   var $=function(id){return document.getElementById(id)};
-  function show(id){ ['s-setup','s-rules','s-reveal','s-phase','s-over'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  function show(id){ ['s-intro','s-setup','s-rules','s-reveal','s-phase','s-over'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  $('introGo').onclick=function(){ show('s-setup'); };
   var names=[], T=1, dark=false, secret=true, players=[], idx=0, day=0, plainUsed=false, pendingDeath=null;
 
   // ---- setup ----
