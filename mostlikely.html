@@ -1,0 +1,247 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Most Likely To</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0d0a16; --panel:#171327; --panel2:#201a38; --line:rgba(138,110,240,.25); --gold:#a38cf5; --goldDim:#8a6ef0;
+    --cream:#efecf9; --muted:#a79cc0; --accent:#8a6ef0; --accentBg:#1a1430;
+    --serif:"Cormorant Garamond",Georgia,serif; --sans:"Jost","Segoe UI",system-ui,sans-serif; color-scheme:dark; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(70% 45% at 50% 0%,rgba(138,110,240,.14),transparent 70%)}
+  .app{min-height:100%;max-width:440px;margin:0 auto;padding:24px 20px 36px;display:flex;flex-direction:column}
+  .scr{display:none;flex:1;flex-direction:column} .scr.on{display:flex}
+  .ctr{align-items:center;justify-content:center;text-align:center}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.3rem,10vw,3.1rem);margin:0;text-align:center;line-height:1.02}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,8vw,2.4rem);margin:0;text-align:center;line-height:1.05;text-wrap:balance}
+  .kick{text-align:center;font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.15rem;margin-top:6px}
+  .narr{text-align:center;color:var(--muted);font-size:1.05rem;margin:14px auto 0;max-width:28em;line-height:1.5}
+  .btn{display:block;width:100%;margin-top:16px;padding:17px;border:none;border-radius:13px;cursor:pointer;
+    font-family:var(--serif);font-weight:600;font-size:1.3rem;background:linear-gradient(160deg,var(--gold),var(--goldDim));color:#120a24;box-shadow:0 14px 30px -14px rgba(138,110,240,.6)}
+  .btn:active{transform:translateY(1px)} .btn:disabled{opacity:.4}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--cream);box-shadow:none;font-size:1.05rem;padding:14px}
+  .inp{width:100%;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font:400 1.1rem var(--sans);margin-top:12px;text-align:center}
+  .code{font-family:var(--serif);letter-spacing:.3em;font-size:2.8rem;color:var(--gold);text-align:center;margin:8px 0}
+  .mid{margin-top:auto;margin-bottom:auto}
+  .plist{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .plist li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-family:var(--serif);font-size:1.25rem;display:flex;justify-content:space-between;align-items:center}
+  .plist li .you{font-family:var(--sans);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .choose{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .choose button{width:100%;text-align:left;padding:15px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font-family:var(--serif);font-size:1.35rem;cursor:pointer}
+  .choose button.sel{border-color:var(--gold);background:var(--panel2)}
+  .choose button:disabled{opacity:.5}
+  .prompt{font-family:var(--serif);font-weight:600;font-size:clamp(1.9rem,8vw,2.5rem);line-height:1.15;color:var(--gold);margin:8px auto 0;max-width:12em}
+  .winner{font-family:var(--serif);font-weight:600;font-size:clamp(2.4rem,11vw,3.2rem);color:var(--gold);margin:6px 0 0}
+  .err{color:#e0894b;text-align:center;font-size:.92rem;margin-top:12px;min-height:1.1em}
+  .status{color:var(--muted);text-align:center;font-size:.85rem;margin-top:14px}
+  .intro{margin:18px 0;display:flex;flex-direction:column;gap:13px;font-size:1.08rem;line-height:1.5;text-align:left;max-width:30em}
+  .intro .ih{font-family:var(--serif);font-size:1.5rem;color:var(--gold);text-align:center;margin:0} .intro b{color:var(--cream)}
+  .seg{display:flex;background:var(--panel2);border-radius:11px;padding:4px;border:1px solid var(--line);margin-top:14px}
+  .seg button{flex:1;padding:11px;border:none;background:none;color:var(--muted);border-radius:8px;font:500 .95rem var(--sans);cursor:pointer}
+  .seg button.sel{background:var(--gold);color:#120a24}
+</style>
+
+<div class="app">
+  <section class="scr on ctr" id="s-land">
+    <h1>Most Likely To…</h1>
+    <div class="intro">
+      <p class="ih">Play on your own phone</p>
+      <p>One person <b>hosts</b> and reads out the code. Everyone else <b>joins</b>. A prompt drops — everyone votes who fits it best.</p>
+      <p style="color:var(--muted);font-size:.95rem">3+ players. Works on any network.</p>
+    </div>
+    <button class="btn" id="hostBtn" disabled>Host a game</button>
+    <button class="btn ghost" id="joinBtn" disabled>Join a game</button>
+    <button class="btn ghost" id="howBtn">How to play</button>
+    <div class="status" id="landStatus">Connecting…</div>
+  </section>
+
+  <section class="scr" id="s-rules">
+    <div style="margin-top:4px"><h2>How to play</h2></div>
+    <div class="intro" style="max-width:34em">
+      <p>Everyone's on their own phone. The host starts a round and a <b>prompt</b> appears — like "most likely to get famous."</p>
+      <p>Everyone <b>votes for the player</b> who fits it best.</p>
+      <p>The votes reveal, and whoever got the most is crowned. Then the host hits <b>next prompt</b> — play as many rounds as you want.</p>
+      <p>No winning or losing. Just chaos and callouts.</p>
+    </div>
+    <button class="btn" id="rulesBack">Back</button>
+  </section>
+
+  <section class="scr ctr" id="s-hostname">
+    <div class="mid" style="width:100%"><h2>You're the host</h2>
+      <input class="inp" id="hostNameIn" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="hostCreate">Create the game</button>
+      <div class="err" id="hostErr"></div>
+    </div>
+  </section>
+
+  <section class="scr ctr" id="s-join">
+    <div class="mid" style="width:100%"><h2>Join a game</h2>
+      <input class="inp" id="joinCode" placeholder="Game code" maxlength="5" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em">
+      <input class="inp" id="joinName" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="joinGo">Join</button>
+      <div class="err" id="joinErr"></div>
+      <div class="status" id="joinStatus"></div>
+    </div>
+  </section>
+
+  <section class="scr" id="s-lobby">
+    <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">—</div></div>
+    <div id="qrBox" hidden style="text-align:center;margin-top:2px">
+      <div id="qrCode" style="display:inline-block;background:#efecf9;padding:12px;border-radius:12px"></div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Point a camera here to join — no texting needed</div>
+      <button class="btn ghost" id="shareBtn" style="margin-top:10px">Share invite link</button>
+    </div>
+    <div class="narr" id="lobbyNarr">Waiting for players…</div>
+    <ul class="plist" id="lobbyList"></ul>
+    <button class="btn" id="startBtn" hidden>Start the game</button>
+    <div class="status" id="lobbyStatus"></div>
+  </section>
+
+  <section class="scr" id="s-pick">
+    <h2 id="pickTitle" style="margin-top:8px">Most likely to…</h2>
+    <div class="prompt" id="pickPrompt" style="text-align:center"></div>
+    <ul class="choose" id="pickList"></ul>
+    <button class="btn" id="pickBtn" hidden>Lock in your vote</button>
+    <div class="status" id="pickStatus"></div>
+  </section>
+
+  <section class="scr ctr" id="s-announce">
+    <div id="annBody" style="width:100%"></div>
+    <button class="btn" id="annBtn" hidden></button>
+    <div class="status" id="annStatus"></div>
+  </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyC26XHgWuGQZXAFASVPDFVhDQtooOJ71vc",
+    authDomain: "gaslight-traitors.firebaseapp.com",
+    databaseURL: "https://gaslight-traitors-default-rtdb.firebaseio.com",
+    projectId: "gaslight-traitors",
+    storageBucket: "gaslight-traitors.firebasestorage.app",
+    messagingSenderId: "4042066171",
+    appId: "1:4042066171:web:95a55f2ab658f4fd33085e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db=firebase.database(), auth=firebase.auth();
+  var ROOT='mlt';
+  var $=function(i){return document.getElementById(i)};
+  function show(id){ ['s-land','s-rules','s-hostname','s-join','s-lobby','s-pick','s-announce'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  function rid(n){ var s='',c='ABCDEFGHJKLMNPQRSTUVWXYZ'; for(var i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var PROMPTS_PG=["get famous","get arrested","become a millionaire","survive a zombie apocalypse","cry during a movie","forget their own birthday","win a reality show","move to another country","start a business","get lost in their own city","eat the last slice without asking","text the wrong person","become an influencer","adopt ten pets","sleep through an alarm","marry a celebrity","go viral","run a marathon on a dare","be late to their own wedding","blow a whole paycheck in a day","get a ridiculous tattoo","fall asleep at the party","laugh at the worst moment","lose their phone tonight","talk their way out of a ticket","win the lottery and lose it","become a meme","start an argument over nothing","save the day in an emergency","ghost the group chat","survive on a deserted island","get kicked out of a bar","name their kid something weird","start a podcast nobody asked for","bring a date to a funeral","win a hot dog eating contest","forget where they parked","accidentally like an old photo","become the family historian","get famous for the wrong reason","fake a sick day","over-share at Thanksgiving","win a dance-off","get scammed online","leave a party without saying bye","get lost with the GPS on","adopt a farm animal","fight over the thermostat","become a reality TV villain","be the last one standing at a wedding","regret a tattoo","become the designated driver forever","cry happy tears","start a group chat and leave it","win an argument they were losing","show up fashionably late","become a conspiracy theorist","lose a bet and actually pay up","plan the whole trip","wing it and somehow win"];
+  var PROMPTS_SPICY=["get kicked out of a bar","drunk-text their ex at 2am","have a secret wild side","hook up on vacation","black out first tonight","be the reason we're not invited back","have the messiest dating history","send a risky text to the wrong chat","get a tattoo they can't show their mom","start a bar fight and lose","get caught sneaking around","streak on a dare","flirt their way out of anything","be a terrible influence","end up on a dating show","get us all in trouble","close down the bar every time","regret last night the most","have the wildest spring-break story","sext the wrong person","show up to brunch still drunk","get a lap dance at their own birthday","have a hidden stash of something","date someone way too young or too old","win a wet t-shirt contest","have a one-night-stand story they won't tell","skinny dip first","be the messiest drunk","get a strippergram at the office","match with their boss on a dating app"];
+  var MODE=((new URLSearchParams(location.search)).get('m')==='adults')?'adults':'family';
+  var used=[];
+
+  var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
+  var PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[];
+
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
+  auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
+    var hc=(location.hash||'').replace('#','').toUpperCase().replace(/[^A-Z]/g,'');
+    if(hc.length>=4 && hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); }
+  } });
+
+  $('hostBtn').onclick=function(){ if(authReady){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); } };
+  $('joinBtn').onclick=function(){ if(authReady){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); } };
+  $('howBtn').onclick=function(){ show('s-rules'); };
+  $('rulesBack').onclick=function(){ show('s-land'); };
+
+  $('hostCreate').onclick=function(){
+    var n=$('hostNameIn').value.trim(); if(!n){ $('hostErr').textContent='Enter your name.'; return; }
+    myName=n; code=rid(4); gref=db.ref(ROOT+'/'+code); seq=0;
+    gref.child('meta').set({host:myUid,phase:'lobby',seq:0,data:null,ts:firebase.database.ServerValue.TIMESTAMP});
+    gref.child('players/'+myUid).set({name:myName}); gref.child('players/'+myUid).onDisconnect().remove();
+    isHost=true; attachCommon(); attachHost();
+    $('lobbyCode').textContent=code; show('s-lobby');
+    var joinUrl=location.href.split('#')[0]+'#'+code;
+    $('qrBox').hidden=false;
+    try{ $('qrCode').innerHTML=''; new QRCode($('qrCode'),{text:joinUrl,width:150,height:150,colorDark:'#0d0a16',colorLight:'#efecf9',correctLevel:QRCode.CorrectLevel.M}); }catch(e){}
+    $('shareBtn').onclick=function(){ if(navigator.share){ navigator.share({title:'Most Likely To',text:'Join my game — code '+code,url:joinUrl}).catch(function(){}); } else { try{ navigator.clipboard.writeText(joinUrl); $('lobbyStatus').textContent='Invite link copied!'; }catch(e){ $('lobbyStatus').textContent=joinUrl; } } };
+  };
+  $('joinGo').onclick=function(){
+    var c=$('joinCode').value.trim().toUpperCase(), nm=$('joinName').value.trim();
+    if(c.length<4){ $('joinErr').textContent='Enter the game code.'; return; }
+    if(!nm){ $('joinErr').textContent='Enter your name.'; return; }
+    myName=nm; code=c; gref=db.ref(ROOT+'/'+code); $('joinErr').textContent=''; $('joinStatus').textContent='Joining…';
+    gref.child('meta').once('value',function(snap){
+      if(!snap.exists()){ $('joinErr').textContent='No game with that code.'; $('joinStatus').textContent=''; return; }
+      if(snap.val().phase!=='lobby'){ $('joinErr').textContent='That game already started.'; $('joinStatus').textContent=''; return; }
+      gref.child('players/'+myUid).set({name:myName}); gref.child('players/'+myUid).onDisconnect().remove();
+      isHost=false; attachCommon(); $('joinStatus').textContent='Joined!';
+    },function(){ $('joinErr').textContent='Could not connect.'; $('joinStatus').textContent=''; });
+  };
+
+  function attachCommon(){
+    gref.child('players').on('value',function(s){ PLAYERS=s.val()||{}; if(!meta.phase||meta.phase==='lobby') renderLobbyView(); });
+    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
+  }
+  function attachHost(){ gref.child('votes').on('value',function(s){ hostResolveVote(s.val()||{}); }); }
+  function playerArr(){ return Object.keys(PLAYERS).map(function(u){return {uid:u,name:PLAYERS[u].name};}); }
+
+  function renderLobbyView(){
+    var ul=$('lobbyList'); ul.innerHTML=''; var ids=Object.keys(PLAYERS);
+    ids.forEach(function(u){ var li=document.createElement('li'); li.innerHTML='<span></span>'; li.querySelector('span').textContent=PLAYERS[u].name; if(u===meta.host){ var t=document.createElement('span');t.className='you';t.textContent='host';li.appendChild(t);} ul.appendChild(li); });
+    if(isHost){ $('lobbyKick').textContent='Game code'; $('lobbyCode').textContent=code; $('lobbyNarr').textContent=ids.length+' here — need 3 to start.'; $('startBtn').hidden=ids.length<3; }
+    else { $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=ids.length+' players'; $('lobbyNarr').textContent='Waiting for the host…'; $('startBtn').hidden=true; }
+    show('s-lobby');
+  }
+  $('startBtn').onclick=function(){ if(isHost) nextRound(); };
+  function nextRound(){
+    gref.child('players').once('value',function(snap){
+      var pl=snap.val()||{}; P=Object.keys(pl).map(function(u){return {uid:u,name:pl[u].name};}); if(P.length<3) return;
+      var bank=(MODE==='adults')?PROMPTS_SPICY:PROMPTS_PG;
+      if(used.length>=bank.length) used=[];
+      var idx; do{ idx=Math.floor(Math.random()*bank.length); }while(used.indexOf(idx)>-1);
+      used.push(idx);
+      gref.child('votes').remove(); setMeta('round',{text:bank[idx]});
+    });
+  }
+  function setMeta(phase,data){ seq=(meta.seq||0)+1; gref.child('meta').update({phase:phase,data:data||null,seq:seq}); }
+  function hostResolveVote(votes){
+    if(!isHost||meta.phase!=='round') return;
+    if(!P.every(function(p){return votes[p.uid];})) return;
+    var tally={}; P.forEach(function(p){ tally[votes[p.uid]]=(tally[votes[p.uid]]||0)+1; });
+    var win=null,best=-1; Object.keys(tally).forEach(function(k){ if(tally[k]>best){best=tally[k];win=k;} });
+    var w=P.filter(function(p){return p.uid===win;})[0];
+    setMeta('reveal',{text:meta.data.text, winner:w.name, count:best});
+  }
+
+  function dispatch(ph,data){
+    if(ph==='lobby') renderLobbyView();
+    else if(ph==='round') voteView(data.text);
+    else if(ph==='reveal') renderReveal(data);
+  }
+  function voteView(text){
+    show('s-pick'); $('pickTitle').textContent='Most likely to…'; $('pickPrompt').textContent=text; $('pickStatus').textContent=''; $('pickBtn').hidden=true;
+    var ul=$('pickList'); ul.innerHTML=''; var chosen=null;
+    playerArr().forEach(function(o){ var li=document.createElement('li'); var b=document.createElement('button'); b.textContent=o.name;
+      b.onclick=function(){ chosen=o.uid; Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.classList.remove('sel');}); b.classList.add('sel'); $('pickBtn').hidden=false; };
+      li.appendChild(b); ul.appendChild(li); });
+    $('pickBtn').onclick=function(){ if(!chosen) return;
+      Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true; $('pickStatus').textContent='Voted — waiting on the others…';
+      gref.child('votes/'+myUid).set(chosen);
+    };
+  }
+  function renderReveal(data){
+    show('s-announce'); $('annBtn').hidden=true; $('annStatus').textContent='';
+    $('annBody').innerHTML='<div class="narr" style="margin-top:0">Most likely to <b style="color:var(--gold)">'+esc(data.text)+'</b>…</div><p class="winner" id="cdp">3</p><div class="narr" id="revsub">Get ready to point…</div>';
+    var cd=$('cdp'), sub=$('revsub'), c=3;
+    var iv=setInterval(function(){ c--;
+      if(c>0){ cd.textContent=String(c); }
+      else if(c===0){ cd.textContent='👉 POINT!'; sub.textContent='Point at who you voted for!'; }
+      else { clearInterval(iv); cd.textContent=data.winner; sub.textContent=data.count+(data.count===1?' vote':' votes')+'. The people have spoken.'; hostAdvance('Next prompt',function(){ if(isHost) nextRound(); }); }
+    },900);
+  }
+  function hostAdvance(label,fn){
+    if(isHost){ $('annBtn').hidden=false; $('annBtn').textContent=label; $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annStatus').textContent=''; fn(); }; $('annStatus').textContent='You’re the host — tap when everyone’s ready.'; }
+    else { $('annBtn').hidden=true; $('annStatus').textContent='Waiting for the host…'; }
+  }
+</script>
