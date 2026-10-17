@@ -1,0 +1,273 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Odd One Out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#07120f; --panel:#0e1b18; --panel2:#132522; --line:rgba(47,183,160,.22); --gold:#5fd3bd; --goldDim:#2fb7a0;
+    --cream:#e6f3ef; --muted:#8fb0a8; --odd:#e0894b; --oddBg:#241509; --word:#2fb7a0; --wordBg:#09211c;
+    --serif:"Cormorant Garamond",Georgia,serif; --sans:"Jost","Segoe UI",system-ui,sans-serif; color-scheme:dark; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(70% 45% at 50% 0%,rgba(47,183,160,.12),transparent 70%)}
+  .app{min-height:100%;max-width:440px;margin:0 auto;padding:24px 20px 36px;display:flex;flex-direction:column}
+  .scr{display:none;flex:1;flex-direction:column} .scr.on{display:flex}
+  .ctr{align-items:center;justify-content:center;text-align:center}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.4rem,11vw,3.3rem);margin:0;text-align:center;line-height:1}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,8vw,2.4rem);margin:0;text-align:center;line-height:1.05;text-wrap:balance}
+  .kick{text-align:center;font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.15rem;margin-top:6px}
+  .narr{text-align:center;color:var(--muted);font-size:1.05rem;margin:14px auto 0;max-width:28em;line-height:1.5}
+  .btn{display:block;width:100%;margin-top:16px;padding:17px;border:none;border-radius:13px;cursor:pointer;
+    font-family:var(--serif);font-weight:600;font-size:1.3rem;background:linear-gradient(160deg,var(--gold),var(--goldDim));color:#06211c;box-shadow:0 14px 30px -14px rgba(47,183,160,.6)}
+  .btn:active{transform:translateY(1px)} .btn:disabled{opacity:.4}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--cream);box-shadow:none;font-size:1.05rem;padding:14px}
+  .inp{width:100%;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font:400 1.1rem var(--sans);margin-top:12px;text-align:center}
+  .code{font-family:var(--serif);letter-spacing:.3em;font-size:2.8rem;color:var(--gold);text-align:center;margin:8px 0}
+  .mid{margin-top:auto;margin-bottom:auto}
+  .plist{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .plist li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-family:var(--serif);font-size:1.25rem;display:flex;justify-content:space-between;align-items:center}
+  .plist li .you{font-family:var(--sans);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .choose{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .choose button{width:100%;text-align:left;padding:15px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font-family:var(--serif);font-size:1.35rem;cursor:pointer}
+  .choose button.sel{border-color:var(--gold);background:var(--panel2)}
+  .choose button:disabled{opacity:.5}
+  .card{margin:20px auto 0;width:260px;max-width:80vw;border-radius:18px;padding:34px 22px;border:1px solid var(--line);text-align:center;background:radial-gradient(circle at 50% 35%,var(--panel2),var(--panel))}
+  .card .lbl{font-size:.74rem;letter-spacing:.3em;text-transform:uppercase;color:var(--muted)}
+  .card .word{font-family:var(--serif);font-weight:600;font-size:2.5rem;line-height:1.05;margin-top:8px}
+  .card.word .word{color:var(--word)} .card.odd{background:radial-gradient(circle,var(--oddBg),#160b04)} .card.odd .word{color:var(--odd);font-size:2rem}
+  .big{font-family:var(--serif);font-size:clamp(2rem,9vw,2.6rem);text-align:center;margin:0}
+  .big.caught{color:var(--word)} .big.got{color:var(--odd)}
+  .err{color:var(--odd);text-align:center;font-size:.92rem;margin-top:12px;min-height:1.1em}
+  .status{color:var(--muted);text-align:center;font-size:.85rem;margin-top:14px}
+  .foot{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:22px}
+  .intro{margin:18px 0;display:flex;flex-direction:column;gap:13px;font-size:1.08rem;line-height:1.5;text-align:left;max-width:30em}
+  .intro .ih{font-family:var(--serif);font-size:1.5rem;color:var(--gold);text-align:center;margin:0} .intro b{color:var(--cream)}
+</style>
+
+<div class="app">
+  <section class="scr on ctr" id="s-land">
+    <h1>Odd One Out</h1>
+    <div class="intro">
+      <p class="ih">Play on your own phone</p>
+      <p>One person <b>hosts</b> and reads out the code. Everyone else <b>joins</b> — everyone gets the same secret word, except <b>one</b> of you.</p>
+      <p style="color:var(--muted);font-size:.95rem">3+ players. Works on any network.</p>
+    </div>
+    <button class="btn" id="hostBtn" disabled>Host a game</button>
+    <button class="btn ghost" id="joinBtn" disabled>Join a game</button>
+    <button class="btn ghost" id="howBtn">How to play</button>
+    <div class="status" id="landStatus">Connecting…</div>
+  </section>
+
+  <section class="scr" id="s-rules">
+    <div style="margin-top:4px"><h2>How to play</h2></div>
+    <div class="intro" style="max-width:34em">
+      <p>Everyone gets the <b>same secret word</b> — except <b style="color:var(--odd)">one player</b>, who only sees "Odd One Out."</p>
+      <p>Go around and <b>say something about the word</b> — specific enough to prove you know it, vague enough not to hand it to the faker.</p>
+      <p>The <b style="color:var(--odd)">Odd One Out</b> tries to blend in and figure out the word. Everyone else tries to spot them.</p>
+      <p>Then you all <b>vote.</b> Catch the Odd One Out and the group wins. Miss, and they got away.</p>
+    </div>
+    <button class="btn" id="rulesBack">Back</button>
+  </section>
+
+  <section class="scr ctr" id="s-hostname">
+    <div class="mid" style="width:100%"><h2>You're the host</h2>
+      <input class="inp" id="hostNameIn" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="hostCreate">Create the game</button>
+      <div class="err" id="hostErr"></div>
+    </div>
+  </section>
+
+  <section class="scr ctr" id="s-join">
+    <div class="mid" style="width:100%"><h2>Join a game</h2>
+      <input class="inp" id="joinCode" placeholder="Game code" maxlength="5" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em">
+      <input class="inp" id="joinName" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="joinGo">Join</button>
+      <div class="err" id="joinErr"></div>
+      <div class="status" id="joinStatus"></div>
+    </div>
+  </section>
+
+  <section class="scr" id="s-lobby">
+    <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">—</div></div>
+    <div id="qrBox" hidden style="text-align:center;margin-top:2px">
+      <div id="qrCode" style="display:inline-block;background:#e6f3ef;padding:12px;border-radius:12px"></div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Point a camera here to join — no texting needed</div>
+      <button class="btn ghost" id="shareBtn" style="margin-top:10px">Share invite link</button>
+    </div>
+    <div class="narr" id="lobbyNarr">Waiting for players…</div>
+    <ul class="plist" id="lobbyList"></ul>
+    <button class="btn" id="startBtn" hidden>Deal the word</button>
+    <div class="status" id="lobbyStatus"></div>
+  </section>
+
+  <section class="scr ctr" id="s-reveal">
+    <h2 id="revealTop">Your word</h2>
+    <div class="card" id="wordCard"><div class="lbl" id="cardLbl">The word is</div><div class="word" id="wordText"></div></div>
+    <div class="narr" id="revealNarr"></div>
+  </section>
+
+  <section class="scr ctr" id="s-wait">
+    <h2 id="waitTitle"></h2>
+    <div class="narr" id="waitNarr"></div>
+    <div class="status" id="waitStatus"></div>
+  </section>
+
+  <section class="scr" id="s-pick">
+    <h2 id="pickTitle" style="margin-top:8px"></h2>
+    <div class="narr" id="pickNarr"></div>
+    <ul class="choose" id="pickList"></ul>
+    <button class="btn" id="pickBtn" hidden>Lock it in</button>
+    <div class="status" id="pickStatus"></div>
+  </section>
+
+  <section class="scr ctr" id="s-announce">
+    <div id="annBody" style="width:100%"></div>
+    <button class="btn" id="annBtn" hidden></button>
+    <div class="status" id="annStatus"></div>
+  </section>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyC26XHgWuGQZXAFASVPDFVhDQtooOJ71vc",
+    authDomain: "gaslight-traitors.firebaseapp.com",
+    databaseURL: "https://gaslight-traitors-default-rtdb.firebaseio.com",
+    projectId: "gaslight-traitors",
+    storageBucket: "gaslight-traitors.firebasestorage.app",
+    messagingSenderId: "4042066171",
+    appId: "1:4042066171:web:95a55f2ab658f4fd33085e"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db=firebase.database(), auth=firebase.auth();
+  var ROOT='ood';
+  var $=function(i){return document.getElementById(i)};
+  function show(id){ ['s-land','s-rules','s-hostname','s-join','s-lobby','s-reveal','s-wait','s-pick','s-announce'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  function rid(n){ var s='',c='ABCDEFGHJKLMNPQRSTUVWXYZ'; for(var i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var WORDS=["Beach","Hospital","Wedding","Casino","Zoo","Airport","Gym","Church","Space Station","Pirate Ship","Movie Theater","Grocery Store","Dentist","Campground","Concert","Farm","Bank","Library","Swimming Pool","Ski Resort","Haunted House","Carnival","Police Station","Coffee Shop","Barbershop","Submarine","Castle","Jungle","Night Club","Bowling Alley","Aquarium","Train Station","Courtroom","Spa","Vineyard","Food Truck","Amusement Park","Locker Room","Art Museum","Fire Station"];
+
+  var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
+  var myWord=null, amOdd=false, PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[];
+
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
+  auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
+    var hc=(location.hash||'').replace('#','').toUpperCase().replace(/[^A-Z]/g,'');
+    if(hc.length>=4 && hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); }
+  } });
+
+  $('hostBtn').onclick=function(){ if(authReady){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); } };
+  $('joinBtn').onclick=function(){ if(authReady){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); } };
+  $('howBtn').onclick=function(){ show('s-rules'); };
+  $('rulesBack').onclick=function(){ show('s-land'); };
+
+  $('hostCreate').onclick=function(){
+    var n=$('hostNameIn').value.trim(); if(!n){ $('hostErr').textContent='Enter your name.'; return; }
+    myName=n; code=rid(4); gref=db.ref(ROOT+'/'+code); seq=0;
+    gref.child('meta').set({host:myUid,phase:'lobby',seq:0,data:null,ts:firebase.database.ServerValue.TIMESTAMP});
+    gref.child('players/'+myUid).set({name:myName,alive:true}); gref.child('players/'+myUid).onDisconnect().remove();
+    isHost=true; attachCommon(); attachHost();
+    $('lobbyCode').textContent=code; show('s-lobby');
+    var joinUrl=location.href.split('#')[0]+'#'+code;
+    $('qrBox').hidden=false;
+    try{ $('qrCode').innerHTML=''; new QRCode($('qrCode'),{text:joinUrl,width:150,height:150,colorDark:'#07120f',colorLight:'#e6f3ef',correctLevel:QRCode.CorrectLevel.M}); }catch(e){}
+    $('shareBtn').onclick=function(){ if(navigator.share){ navigator.share({title:'Odd One Out',text:'Join my game — code '+code,url:joinUrl}).catch(function(){}); } else { try{ navigator.clipboard.writeText(joinUrl); $('lobbyStatus').textContent='Invite link copied!'; }catch(e){ $('lobbyStatus').textContent=joinUrl; } } };
+  };
+  $('joinGo').onclick=function(){
+    var c=$('joinCode').value.trim().toUpperCase(), nm=$('joinName').value.trim();
+    if(c.length<4){ $('joinErr').textContent='Enter the game code.'; return; }
+    if(!nm){ $('joinErr').textContent='Enter your name.'; return; }
+    myName=nm; code=c; gref=db.ref(ROOT+'/'+code); $('joinErr').textContent=''; $('joinStatus').textContent='Joining…';
+    gref.child('meta').once('value',function(snap){
+      if(!snap.exists()){ $('joinErr').textContent='No game with that code.'; $('joinStatus').textContent=''; return; }
+      if(snap.val().phase!=='lobby'){ $('joinErr').textContent='That game already started.'; $('joinStatus').textContent=''; return; }
+      gref.child('players/'+myUid).set({name:myName,alive:true}); gref.child('players/'+myUid).onDisconnect().remove();
+      isHost=false; attachCommon(); $('joinStatus').textContent='Joined!';
+    },function(){ $('joinErr').textContent='Could not connect.'; $('joinStatus').textContent=''; });
+  };
+
+  function attachCommon(){
+    gref.child('players').on('value',function(s){ PLAYERS=s.val()||{}; if(!meta.phase||meta.phase==='lobby') renderLobbyView(); });
+    gref.child('roles/'+myUid).on('value',function(s){ var v=s.val(); if(v){ myWord=v.word||null; amOdd=!!v.odd; } });
+    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
+  }
+  function attachHost(){ gref.child('votes').on('value',function(s){ hostResolveVote(s.val()||{}); }); }
+  function aliveArr(){ return Object.keys(PLAYERS).filter(function(u){return PLAYERS[u];}).map(function(u){return {uid:u,name:PLAYERS[u].name};}); }
+
+  function renderLobbyView(){
+    var ul=$('lobbyList'); ul.innerHTML=''; var ids=Object.keys(PLAYERS);
+    ids.forEach(function(u){ var li=document.createElement('li'); li.innerHTML='<span></span>'; li.querySelector('span').textContent=PLAYERS[u].name; if(u===meta.host){ var t=document.createElement('span');t.className='you';t.textContent='host';li.appendChild(t);} ul.appendChild(li); });
+    if(isHost){ $('lobbyKick').textContent='Game code'; $('lobbyCode').textContent=code; $('lobbyNarr').textContent=ids.length+' here — need 3 to start.'; $('startBtn').hidden=ids.length<3; }
+    else { $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=ids.length+' players'; $('lobbyNarr').textContent='Waiting for the host…'; $('startBtn').hidden=true; }
+    if(!$('s-reveal').classList.contains('on')) show('s-lobby');
+  }
+  $('startBtn').onclick=function(){ if(isHost) dealWord(); };
+  function dealWord(){
+    gref.child('players').once('value',function(snap){
+      var pl=snap.val()||{}; var uids=Object.keys(pl); if(uids.length<3) return;
+      P=uids.map(function(u){ return {uid:u,name:pl[u].name}; });
+      var word=WORDS[Math.floor(Math.random()*WORDS.length)];
+      var oddUid=uids[Math.floor(Math.random()*uids.length)];
+      var upd={}; P.forEach(function(p){ upd['roles/'+p.uid]= (p.uid===oddUid)?{odd:true}:{word:word}; });
+      gref.child('votes').remove(); gref.update(upd);
+      P._word=word; P._odd=oddUid;
+      setMeta('reveal',{});
+    });
+  }
+  function setMeta(phase,data){ seq=(meta.seq||0)+1; gref.child('meta').update({phase:phase,data:data||null,seq:seq}); }
+  function startVote(){ if(!isHost) return; gref.child('votes').remove(); setMeta('vote',{}); }
+  function hostResolveVote(votes){
+    if(!isHost||meta.phase!=='vote') return;
+    if(!P.every(function(p){return votes[p.uid];})) return;
+    var tally={}; P.forEach(function(p){ tally[votes[p.uid]]=(tally[votes[p.uid]]||0)+1; });
+    var win=null,best=-1; Object.keys(tally).forEach(function(k){ if(tally[k]>best){best=tally[k];win=k;} });
+    var accused=P.filter(function(p){return p.uid===win;})[0];
+    var oddP=P.filter(function(p){return p.uid===P._odd;})[0];
+    var caught=(win===P._odd);
+    setMeta('result',{accused:accused.name, odd:oddP.name, word:P._word, caught:caught});
+  }
+
+  function dispatch(ph,data){
+    if(ph==='lobby') renderLobbyView();
+    else if(ph==='reveal') renderReveal();
+    else if(ph==='discuss') renderDiscuss();
+    else if(ph==='vote') voteView();
+    else if(ph==='result') renderResult(data);
+  }
+  function renderReveal(){
+    show('s-reveal');
+    if(amOdd){ $('wordCard').className='card odd'; $('cardLbl').textContent='You are the'; $('wordText').textContent='ODD ONE OUT'; $('revealNarr').textContent='You don’t know the word. Blend in, bluff, and figure it out.'; }
+    else { $('wordCard').className='card word'; $('cardLbl').textContent='The word is'; $('wordText').textContent=(myWord||'').toUpperCase(); $('revealNarr').textContent='Prove you know it without saying it outright. One of you is faking.'; }
+  }
+  function renderDiscuss(){ show('s-announce'); $('annBody').innerHTML='<h2>Talk it out</h2><div class="narr">Go around the room — everyone says one thing about the word. Specific enough to prove it, vague enough to protect it. Then vote on the faker.</div>'; hostAdvance('Start the vote',startVote); }
+  function voteView(){ renderPick('Who’s the Odd One Out?','Tap the player you think is faking.',aliveArr(),'vote'); }
+  function renderResult(data){
+    var caught=data.caught;
+    var html='<h2>'+esc(data.accused)+' was voted out</h2>';
+    html+='<p class="big '+(caught?'caught':'got')+'">'+(caught?'CAUGHT!':'WRONG')+'</p>';
+    html+='<div class="narr">'+(caught? esc(data.odd)+' was the Odd One Out — nice work.' : esc(data.odd)+' was the Odd One Out, and they got away!')+'</div>';
+    html+='<div class="narr" style="margin-top:14px">The word was <b style="color:var(--word)">'+esc(data.word)+'</b>.</div>';
+    show('s-announce'); $('annBody').innerHTML=html; hostAdvance('Play again',function(){ if(isHost) dealWord(); });
+  }
+  function renderPick(title,narr,options,type){
+    show('s-pick'); $('pickTitle').textContent=title; $('pickNarr').textContent=narr; $('pickStatus').textContent=''; $('pickBtn').hidden=true;
+    var ul=$('pickList'); ul.innerHTML=''; var chosen=null;
+    options.forEach(function(o){ var li=document.createElement('li'); var b=document.createElement('button'); b.textContent=o.name;
+      b.onclick=function(){ chosen=o.uid; Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.classList.remove('sel');}); b.classList.add('sel'); $('pickBtn').hidden=false; };
+      li.appendChild(b); ul.appendChild(li); });
+    $('pickBtn').onclick=function(){ if(!chosen) return;
+      Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true; $('pickStatus').textContent='Locked in — waiting on the others…';
+      gref.child('votes/'+myUid).set(chosen);
+    };
+  }
+  function renderWait(t,n){ show('s-wait'); $('waitTitle').textContent=t; $('waitNarr').textContent=n; $('waitStatus').textContent=''; }
+  function hostAdvance(label,fn){
+    if(isHost){ $('annBtn').hidden=false; $('annBtn').textContent=label; $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annStatus').textContent=''; fn(); }; $('annStatus').textContent='You’re the host — tap when the table’s ready.'; }
+    else { $('annBtn').hidden=true; $('annStatus').textContent='Waiting for the host…'; }
+  }
+</script>
