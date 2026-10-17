@@ -97,6 +97,11 @@
 
   <section class="scr" id="s-lobby">
     <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">â€”</div></div>
+    <div id="qrBox" hidden style="text-align:center;margin-top:2px">
+      <div id="qrCode" style="display:inline-block;background:#ece3cf;padding:12px;border-radius:12px"></div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Point a camera here to join â€” no texting needed</div>
+      <button class="btn ghost" id="shareBtn" style="margin-top:10px">Share invite link</button>
+    </div>
     <div class="narr" id="lobbyNarr">Waiting for playersâ€¦</div>
     <ul class="plist" id="lobbyList"></ul>
     <button class="btn" id="startBtn" hidden>Deal the roles</button>
@@ -135,6 +140,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
   var firebaseConfig = {
     apiKey: "AIzaSyC26XHgWuGQZXAFASVPDFVhDQtooOJ71vc",
@@ -160,7 +166,10 @@
   var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[], dark=false, hostDark=false;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked â€” check your network.'; });
-  auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent=''; } });
+  auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
+    var hc=(location.hash||'').replace('#','').toUpperCase().replace(/[^A-Z]/g,'');
+    if(hc.length>=4 && hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); }
+  } });
 
   $('hostBtn').onclick=function(){ if(authReady){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); } };
   $('joinBtn').onclick=function(){ if(authReady){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); } };
@@ -176,6 +185,10 @@
     gref.child('players/'+myUid).onDisconnect().remove();
     isHost=true; attachCommon(); attachHost();
     $('lobbyCode').textContent=code; show('s-lobby');
+    var joinUrl=location.href.split('#')[0]+'#'+code;
+    $('qrBox').hidden=false;
+    try{ $('qrCode').innerHTML=''; new QRCode($('qrCode'),{text:joinUrl,width:150,height:150,colorDark:'#1a1008',colorLight:'#ece3cf',correctLevel:QRCode.CorrectLevel.M}); }catch(e){}
+    $('shareBtn').onclick=function(){ if(navigator.share){ navigator.share({title:'The Traitors',text:'Join my game â€” code '+code,url:joinUrl}).catch(function(){}); } else { try{ navigator.clipboard.writeText(joinUrl); $('lobbyStatus').textContent='Invite link copied!'; }catch(e){ $('lobbyStatus').textContent=joinUrl; } } };
   };
   // ---- join ----
   $('joinGo').onclick=function(){
