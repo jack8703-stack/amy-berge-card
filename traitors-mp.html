@@ -1,0 +1,336 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Traitors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0b120e; --panel:#121c16; --panel2:#182620; --line:rgba(216,181,106,.2); --gold:#d8b56a; --goldDim:#9c8550;
+    --cream:#ece3cf; --muted:#9bae9f; --faithful:#55b074; --faithfulBg:#10251a; --traitor:#c0392b; --traitorBg:#260e0c;
+    --serif:"Cormorant Garamond",Georgia,serif; --sans:"Jost","Segoe UI",system-ui,sans-serif; color-scheme:dark; }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--cream);font-family:var(--sans);-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(70% 45% at 50% 0%,rgba(216,181,106,.10),transparent 70%)}
+  .app{min-height:100%;max-width:440px;margin:0 auto;padding:24px 20px 36px;display:flex;flex-direction:column}
+  .scr{display:none;flex:1;flex-direction:column} .scr.on{display:flex}
+  .ctr{align-items:center;justify-content:center;text-align:center}
+  h1{font-family:var(--serif);font-weight:600;font-size:clamp(2.6rem,12vw,3.6rem);margin:0;text-align:center;line-height:1}
+  h2{font-family:var(--serif);font-weight:600;font-size:clamp(1.8rem,8vw,2.4rem);margin:0;text-align:center;line-height:1.05;text-wrap:balance}
+  .kick{text-align:center;font-family:var(--serif);font-style:italic;color:var(--gold);font-size:1.15rem;margin-top:6px}
+  .narr{text-align:center;color:var(--muted);font-size:1.05rem;margin:14px auto 0;max-width:28em;line-height:1.5}
+  .btn{display:block;width:100%;margin-top:16px;padding:17px;border:none;border-radius:13px;cursor:pointer;
+    font-family:var(--serif);font-weight:600;font-size:1.3rem;background:linear-gradient(160deg,var(--gold),var(--goldDim));color:#20160a;box-shadow:0 14px 30px -14px rgba(216,181,106,.6)}
+  .btn:active{transform:translateY(1px)} .btn:disabled{opacity:.4}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--cream);box-shadow:none;font-size:1.05rem;padding:14px}
+  .inp{width:100%;padding:15px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font:400 1.1rem var(--sans);margin-top:12px;text-align:center}
+  .code{font-family:var(--serif);letter-spacing:.3em;font-size:2.8rem;color:var(--gold);text-align:center;margin:8px 0}
+  .mid{margin-top:auto;margin-bottom:auto}
+  .plist{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .plist li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-family:var(--serif);font-size:1.25rem;display:flex;justify-content:space-between;align-items:center}
+  .plist li .you{font-family:var(--sans);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .choose{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+  .choose button{width:100%;text-align:left;padding:15px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font-family:var(--serif);font-size:1.35rem;cursor:pointer}
+  .choose button.sel{border-color:var(--gold);background:var(--panel2)}
+  .choose button:disabled{opacity:.5}
+  .hold{margin:22px auto 0;width:210px;height:210px;border-radius:50%;display:grid;place-items:center;position:relative;border:1px solid var(--line);background:radial-gradient(circle at 50% 38%,var(--panel2),var(--panel))}
+  .hold .w{font-family:var(--serif);font-weight:600;font-size:2.4rem;line-height:1}
+  .hold .f{font-size:.85rem;color:var(--muted);font-style:italic;font-family:var(--serif);margin-top:6px;padding:0 20px}
+  .hold.t{background:radial-gradient(circle,var(--traitorBg),#140706)} .hold.t .w{color:var(--traitor)}
+  .hold.g{background:radial-gradient(circle,var(--faithfulBg),#081510)} .hold.g .w{color:var(--faithful)}
+  .cd{font-family:var(--serif);font-size:5rem;color:var(--gold)}
+  .big{font-family:var(--serif);font-size:clamp(2rem,9vw,2.8rem);text-align:center;margin:0}
+  .big.t{color:var(--traitor)} .big.g{color:var(--faithful)}
+  .err{color:var(--traitor);text-align:center;font-size:.92rem;margin-top:12px;min-height:1.1em}
+  .status{color:var(--muted);text-align:center;font-size:.85rem;margin-top:14px}
+  .foot{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:22px}
+  .intro{margin:18px 0;display:flex;flex-direction:column;gap:13px;font-size:1.08rem;line-height:1.5;text-align:left;max-width:30em}
+  .intro .ih{font-family:var(--serif);font-size:1.5rem;color:var(--gold);text-align:center;margin:0} .intro b{color:var(--cream)}
+</style>
+
+<div class="app">
+  <!-- LANDING -->
+  <section class="scr on ctr" id="s-land">
+    <h1>The Traitors</h1>
+    <div class="intro">
+      <p class="ih">Play on your own phone</p>
+      <p>One person <b>hosts</b> and reads out the code. Everyone else <b>joins</b> with it — your role stays secret on your own phone.</p>
+      <p style="color:var(--muted);font-size:.95rem">Works best with everyone together on the same wifi. 4+ players.</p>
+    </div>
+    <button class="btn" id="hostBtn">Host a game</button>
+    <button class="btn ghost" id="joinBtn">Join a game</button>
+    <div class="foot">An early multiplayer preview</div>
+  </section>
+
+  <!-- HOST NAME -->
+  <section class="scr ctr" id="s-hostname">
+    <div class="mid" style="width:100%"><h2>You're the host</h2>
+      <input class="inp" id="hostNameIn" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="hostCreate">Create the game</button>
+      <div class="err" id="hostErr"></div>
+      <div class="status" id="hostStatus"></div>
+    </div>
+  </section>
+
+  <!-- JOIN -->
+  <section class="scr ctr" id="s-join">
+    <div class="mid" style="width:100%"><h2>Join a game</h2>
+      <input class="inp" id="joinCode" placeholder="Game code" maxlength="5" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase;letter-spacing:.2em">
+      <input class="inp" id="joinName" placeholder="Your name" maxlength="14" autocomplete="off">
+      <button class="btn" id="joinGo">Join</button>
+      <div class="err" id="joinErr"></div>
+      <div class="status" id="joinStatus"></div>
+    </div>
+  </section>
+
+  <!-- LOBBY -->
+  <section class="scr" id="s-lobby">
+    <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">—</div></div>
+    <div class="narr" id="lobbyNarr">Waiting for players to join…</div>
+    <ul class="plist" id="lobbyList"></ul>
+    <button class="btn" id="startBtn" hidden>Deal the roles</button>
+    <div class="status" id="lobbyStatus"></div>
+  </section>
+
+  <!-- REVEAL -->
+  <section class="scr ctr" id="s-reveal">
+    <h2 id="revealTop">Your role</h2>
+    <div id="cdWrap" class="cd" hidden></div>
+    <div class="hold" id="roleHold" hidden><div><div class="w" id="roleWord"></div><div class="f" id="roleFlav"></div></div></div>
+    <div class="narr" id="revealNarr"></div>
+    <button class="btn" id="revealOk" hidden>Ready</button>
+  </section>
+
+  <!-- WAIT -->
+  <section class="scr ctr" id="s-wait">
+    <h2 id="waitTitle"></h2>
+    <div class="narr" id="waitNarr"></div>
+    <div class="status" id="waitStatus"></div>
+  </section>
+
+  <!-- PICK -->
+  <section class="scr" id="s-pick">
+    <h2 id="pickTitle" style="margin-top:8px"></h2>
+    <div class="narr" id="pickNarr"></div>
+    <ul class="choose" id="pickList"></ul>
+    <button class="btn" id="pickBtn" hidden>Lock it in</button>
+    <div class="status" id="pickStatus"></div>
+  </section>
+
+  <!-- ANNOUNCE -->
+  <section class="scr ctr" id="s-announce">
+    <div id="annBody" style="width:100%"></div>
+    <button class="btn" id="annBtn" hidden></button>
+    <div class="status" id="annStatus"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script>
+  var $=function(i){return document.getElementById(i)};
+  function show(id){ ['s-land','s-hostname','s-join','s-lobby','s-reveal','s-wait','s-pick','s-announce'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  var isHost=false, peer=null, myName='', myId='', hostConn=null;
+  var FLAV_T=["Murder by moonlight.","Blend in. Betray them all.","Smile. Lie. Win."];
+  var FLAV_G=["Find the Traitors.","Trust no one.","Survive the night."];
+  function rid(n){ var s='',c='ABCDEFGHJKLMNPQRSTUVWXYZ'; for(var i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+
+  // ===================== LANDING =====================
+  $('hostBtn').onclick=function(){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); };
+  $('joinBtn').onclick=function(){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); };
+
+  // ===================== HOST =====================
+  var G=null; // host game state
+  function broadcast(msg){ G.players.forEach(function(p){ if(p.conn){ try{p.conn.send(msg);}catch(e){} } }); }
+  function sendTo(p,msg){ if(p.conn){ try{p.conn.send(msg);}catch(e){} } else { handleHostSelf(msg); } }
+  function alivePlayers(){ return G.players.filter(function(p){return p.alive;}); }
+  function aliveTraitors(){ return G.players.filter(function(p){return p.alive&&p.role==='t';}); }
+  function aliveFaithful(){ return G.players.filter(function(p){return p.alive&&p.role==='g';}); }
+
+  $('hostCreate').onclick=function(){
+    var n=$('hostNameIn').value.trim(); if(!n){ $('hostErr').textContent='Enter your name.'; return; }
+    myName=n; $('hostErr').textContent=''; $('hostStatus').textContent='Connecting…';
+    var code=rid(4);
+    peer=new Peer('gslt-'+code.toLowerCase());
+    peer.on('open',function(){
+      G={code:code, players:[{id:'host',name:myName,conn:null,role:null,alive:true,pick:null}], phase:'lobby'};
+      myId='host';
+      $('lobbyCode').textContent=code; renderLobby(); show('s-lobby');
+    });
+    peer.on('error',function(e){ if(String(e).indexOf('unavailable')>-1){ $('hostCreate').onclick(); } else { $('hostErr').textContent='Connection problem — try again.'; $('hostStatus').textContent=''; } });
+    peer.on('connection',function(conn){
+      conn.on('open',function(){});
+      conn.on('data',function(d){ onHostData(conn,d); });
+      conn.on('close',function(){ /* keep seat */ });
+    });
+  };
+  function onHostData(conn,d){
+    if(d.t==='join'){
+      if(G.phase!=='lobby'){ try{conn.send({t:'full'});}catch(e){} return; }
+      if(G.players.length>=16){ try{conn.send({t:'full'});}catch(e){} return; }
+      var p={id:'p'+Date.now()+Math.floor(Math.random()*99),name:d.name,conn:conn,role:null,alive:true,pick:null};
+      G.players.push(p); conn._pid=p.id;
+      try{conn.send({t:'joined',you:p.id});}catch(e){}
+      renderLobby(); broadcast({t:'lobby',players:G.players.map(function(x){return x.name;})});
+    } else if(d.t==='kill' || d.t==='vote'){
+      var pl=G.players.filter(function(x){return x.id===conn._pid;})[0]; if(pl) pl.pick=d.target;
+      checkPicks();
+    }
+  }
+  function renderLobby(){
+    var ul=$('lobbyList'); ul.innerHTML='';
+    G.players.forEach(function(p){ var li=document.createElement('li'); li.innerHTML='<span></span>'+(p.id==='host'?'<span class="you">host</span>':''); li.querySelector('span').textContent=p.name; ul.appendChild(li); });
+    $('lobbyNarr').textContent=G.players.length+' here — need 4 to start.';
+    $('startBtn').hidden = G.players.length<4;
+  }
+
+  // ---- deal & reveal ----
+  $('startBtn').onclick=function(){ dealRoles(); };
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function dealRoles(){
+    var n=G.players.length; var max=Math.max(1,Math.floor(n/2)); var base=Math.max(1,Math.round(n/4));
+    var T=base; if(base+1<=max && Math.random()<.5) T=base+1;
+    var roles=[]; for(var i=0;i<n;i++) roles.push(i<T?'t':'g'); shuffle(roles);
+    var idx=shuffle(G.players.map(function(_,i){return i;}));
+    idx.forEach(function(pi,k){ G.players[pi].role=roles[k]; });
+    var traitorNames=G.players.filter(function(p){return p.role==='t';}).map(function(p){return p.name;});
+    G.players.forEach(function(p){ var mates=p.role==='t'?traitorNames.filter(function(nm){return nm!==p.name;}):[]; sendTo(p,{t:'role',role:p.role,mates:mates}); });
+    G.phase='reveal';
+    setTimeout(function(){ broadcast({t:'revealCountdown'}); handleHostSelf({t:'revealCountdown'}); setTimeout(startNight, 4200); }, 600);
+  }
+
+  // ---- night ----
+  function startNight(){
+    G.phase='night'; G.players.forEach(function(p){p.pick=null;});
+    var targets=aliveFaithful().map(function(p){return {id:p.id,name:p.name};});
+    aliveTraitors().forEach(function(p){ sendTo(p,{t:'nightPick',targets:targets}); });
+    aliveFaithful().forEach(function(p){ sendTo(p,{t:'nightWait'}); });
+  }
+  function checkPicks(){
+    if(G.phase==='night'){
+      var tr=aliveTraitors(); if(tr.every(function(p){return p.pick;})){
+        var tally={}; tr.forEach(function(p){ tally[p.pick]=(tally[p.pick]||0)+1; });
+        var win=null,best=-1; Object.keys(tally).forEach(function(k){ if(tally[k]>best){best=tally[k];win=k;} });
+        var victim=G.players.filter(function(x){return x.id===win;})[0];
+        victim.alive=false;
+        var over=checkWin();
+        broadcast({t:'morning',name:victim.name,over:over}); handleHostSelf({t:'morning',name:victim.name,over:over});
+        G.phase='morningWait';
+      }
+    } else if(G.phase==='dayvote'){
+      var al=alivePlayers(); if(al.every(function(p){return p.pick;})){
+        var tally={}; al.forEach(function(p){ tally[p.pick]=(tally[p.pick]||0)+1; });
+        var win=null,best=-1; Object.keys(tally).forEach(function(k){ if(tally[k]>best){best=tally[k];win=k;} });
+        var banished=G.players.filter(function(x){return x.id===win;})[0];
+        banished.alive=false; var over=checkWin();
+        broadcast({t:'banish',name:banished.name,role:banished.role,over:over}); handleHostSelf({t:'banish',name:banished.name,role:banished.role,over:over});
+        G.phase='banishWait';
+      }
+    }
+  }
+  function startDay(){
+    G.phase='day'; G.players.forEach(function(p){p.pick=null;});
+    var opener=alivePlayers()[Math.floor(Math.random()*alivePlayers().length)];
+    broadcast({t:'roundtable',opener:opener.name}); handleHostSelf({t:'roundtable',opener:opener.name});
+  }
+  function startVote(){
+    G.phase='dayvote'; G.players.forEach(function(p){p.pick=null;});
+    var cands=alivePlayers().map(function(p){return {id:p.id,name:p.name};});
+    alivePlayers().forEach(function(p){ sendTo(p,{t:'votePick',candidates:cands}); });
+  }
+  function checkWin(){ if(aliveTraitors().length===0) return 'faithful'; if(aliveTraitors().length>=aliveFaithful().length) return 'traitors'; return null; }
+  function finishOver(side){ var roles=G.players.map(function(p){return {name:p.name,role:p.role};}); broadcast({t:'over',side:side,roles:roles}); handleHostSelf({t:'over',side:side,roles:roles}); }
+
+  // host self receives messages like a client
+  function handleHostSelf(msg){ onClientMsg(msg); }
+
+  // ===================== CLIENT =====================
+  $('joinGo').onclick=function(){
+    var code=$('joinCode').value.trim().toUpperCase(), nm=$('joinName').value.trim();
+    if(code.length<4){ $('joinErr').textContent='Enter the game code.'; return; }
+    if(!nm){ $('joinErr').textContent='Enter your name.'; return; }
+    myName=nm; $('joinErr').textContent=''; $('joinStatus').textContent='Connecting…';
+    peer=new Peer();
+    peer.on('open',function(){
+      hostConn=peer.connect('gslt-'+code.toLowerCase(),{reliable:true});
+      hostConn.on('open',function(){ hostConn.send({t:'join',name:myName}); $('joinStatus').textContent='Joined! Waiting for the host…'; });
+      hostConn.on('data',function(d){ onClientMsg(d); });
+      hostConn.on('close',function(){ $('waitStatus').textContent='Lost connection to host.'; });
+      setTimeout(function(){ if(!hostConn.open){ $('joinErr').textContent='Could not find that game. Check the code.'; $('joinStatus').textContent=''; } },6000);
+    });
+    peer.on('error',function(e){ $('joinErr').textContent='Could not connect — check the code and wifi.'; $('joinStatus').textContent=''; });
+  };
+  function sendHost(msg){ if(isHost){ onHostData({_pid:'host',send:function(){}},msg==='x'?msg:Object.assign({},msg)); } }
+
+  var myRole=null, myMates=[];
+  function onClientMsg(d){
+    if(d.t==='joined'){ myId=d.you; }
+    else if(d.t==='lobby'){ if(!isHost){ renderClientLobby(d.players); } }
+    else if(d.t==='full'){ $('joinErr').textContent='That game is full or already started.'; }
+    else if(d.t==='role'){ myRole=d.role; myMates=d.mates||[]; }
+    else if(d.t==='revealCountdown'){ runReveal(); }
+    else if(d.t==='nightPick'){ renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',d.targets,'kill'); }
+    else if(d.t==='nightWait'){ renderWait('Night falls','Close your eyes. The Traitors are choosing…'); }
+    else if(d.t==='morning'){ renderMorning(d.name,d.over); }
+    else if(d.t==='roundtable'){ renderRoundtable(d.opener); }
+    else if(d.t==='votePick'){ renderPick('The vote','Tap the name you want to banish.',d.candidates,'vote'); }
+    else if(d.t==='banish'){ renderBanish(d.name,d.role,d.over); }
+    else if(d.t==='over'){ renderOver(d.side,d.roles); }
+  }
+  function renderClientLobby(names){
+    $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=names.length+' players';
+    var ul=$('lobbyList'); ul.innerHTML=''; names.forEach(function(nm){ var li=document.createElement('li'); li.innerHTML='<span></span>'; li.querySelector('span').textContent=nm; ul.appendChild(li); });
+    $('lobbyNarr').textContent='Waiting for the host to deal…'; $('startBtn').hidden=true; show('s-lobby');
+  }
+  function runReveal(){
+    show('s-reveal'); $('revealTop').textContent='Your role'; $('roleHold').hidden=true; $('revealNarr').textContent='';
+    $('cdWrap').hidden=false; var c=3; $('cdWrap').textContent=c;
+    var iv=setInterval(function(){ c--; if(c>0){ $('cdWrap').textContent=c; } else { clearInterval(iv); $('cdWrap').hidden=true; flipRole(); } },900);
+  }
+  function flipRole(){
+    var isT=myRole==='t'; var h=$('roleHold'); h.hidden=false; h.className='hold '+(isT?'t':'g');
+    $('roleWord').textContent=isT?'TRAITOR':'FAITHFUL';
+    var f=(isT?FLAV_T:FLAV_G)[Math.floor(Math.random()*3)];
+    if(isT&&myMates.length) f='With you: '+myMates.join(', ');
+    $('roleFlav').textContent=f;
+    $('revealNarr').textContent='Look around the table — who else just found out?';
+  }
+  function renderWait(title,narr){ show('s-wait'); $('waitTitle').textContent=title; $('waitNarr').textContent=narr; $('waitStatus').textContent=''; }
+  function renderPick(title,narr,options,type){
+    show('s-pick'); $('pickTitle').textContent=title; $('pickNarr').textContent=narr; $('pickStatus').textContent=''; $('pickBtn').hidden=true;
+    var ul=$('pickList'); ul.innerHTML=''; var chosen=null;
+    options.forEach(function(o){ var li=document.createElement('li'); var b=document.createElement('button'); b.textContent=o.name;
+      b.onclick=function(){ chosen=o.id; Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.classList.remove('sel');}); b.classList.add('sel'); $('pickBtn').hidden=false; };
+      li.appendChild(b); ul.appendChild(li); });
+    $('pickBtn').onclick=function(){ if(!chosen) return;
+      Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true; $('pickStatus').textContent='Locked in — waiting on the others…';
+      if(isHost){ var me=G.players.filter(function(p){return p.id==='host';})[0]; me.pick=chosen; checkPicks(); }
+      else { hostConn.send({t:type,target:chosen}); }
+    };
+  }
+  function renderMorning(name,over){
+    show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is dead</h2><div class="narr">The table wakes to find '+esc(name)+' gone in the night.</div>';
+    hostAdvance(over,'To the Round Table', over?function(){finishOver(over);}:startDay);
+  }
+  function renderRoundtable(opener){
+    show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out — then everyone votes to banish one.</div>';
+    hostAdvance(false,'Everyone vote', startVote, true);
+  }
+  function renderBanish(name,role,over){
+    var wasT=role==='t';
+    show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent — a Faithful lost.')+'</div>';
+    hostAdvance(over,'Night falls again', over?function(){finishOver(over);}:startNight);
+  }
+  function renderOver(side,roles){
+    var fw=side==='faithful';
+    var html='<h2 style="color:'+(fw?'var(--faithful)':'var(--traitor)')+'">'+(fw?'The Faithful win':'The Traitors win')+'</h2>';
+    html+='<div class="narr">'+(fw?'Every Traitor rooted out.':'The Traitors survived and stole it.')+'</div><ul class="plist" style="pointer-events:none;margin-top:14px">';
+    roles.forEach(function(r){ html+='<li><span>'+esc(r.name)+'</span><span class="you" style="color:'+(r.role==='t'?'var(--traitor)':'var(--faithful)')+'">'+(r.role==='t'?'Traitor':'Faithful')+'</span></li>'; });
+    html+='</ul>';
+    show('s-announce'); $('annBody').innerHTML=html; $('annBtn').hidden=true; $('annStatus').textContent='Thanks for playing the preview.';
+  }
+  // only the host gets the advance button (keeps everyone in sync); clients wait
+  function hostAdvance(over,label,fn,noauto){
+    if(isHost){ $('annBtn').hidden=false; $('annBtn').textContent=over?'See how it ends':label; $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annStatus').textContent=''; fn(); }; $('annStatus').textContent='You’re the host — tap when the table’s ready.'; }
+    else { $('annBtn').hidden=true; $('annStatus').textContent='Waiting for the host…'; }
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+</script>
