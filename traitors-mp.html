@@ -45,6 +45,10 @@
   .foot{text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;margin-top:22px}
   .intro{margin:18px 0;display:flex;flex-direction:column;gap:13px;font-size:1.08rem;line-height:1.5;text-align:left;max-width:30em}
   .intro .ih{font-family:var(--serif);font-size:1.5rem;color:var(--gold);text-align:center;margin:0} .intro b{color:var(--cream)}
+  .seg{display:flex;background:var(--panel2);border-radius:11px;padding:4px;border:1px solid var(--line);margin-top:14px}
+  .seg button{flex:1;padding:11px;border:none;background:none;color:var(--muted);border-radius:8px;font:500 .95rem var(--sans);cursor:pointer}
+  .seg button.sel{background:var(--gold);color:#20160a}
+  .drink{margin-top:16px;background:rgba(216,181,106,.1);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--gold);font-family:var(--serif);font-size:1.15rem;line-height:1.3}
 </style>
 
 <div class="app">
@@ -57,12 +61,27 @@
     </div>
     <button class="btn" id="hostBtn" disabled>Host a game</button>
     <button class="btn ghost" id="joinBtn" disabled>Join a game</button>
+    <button class="btn ghost" id="howBtn">How to play</button>
     <div class="status" id="landStatus">Connecting…</div>
+  </section>
+
+  <section class="scr" id="s-rules">
+    <div style="margin-top:4px"><h2>How to play</h2></div>
+    <div class="intro" style="max-width:34em">
+      <p><b style="color:var(--traitor)">A few of you are secretly Traitors.</b> Everyone else is Faithful — nobody knows who's who.</p>
+      <p><b style="color:var(--faithful)">Faithful</b> want to find and banish every Traitor. <b style="color:var(--traitor)">Traitors</b> want to survive without getting caught.</p>
+      <p>Each round: <b>Night</b> — the Traitors secretly murder one Faithful. <b>Day</b> — everyone argues, then votes to banish one person; their role is revealed.</p>
+      <p><b style="color:var(--faithful)">Faithful win</b> by banishing all the Traitors. <b style="color:var(--traitor)">Traitors win</b> the moment they equal the Faithful.</p>
+      <p>Your phone tells you what to do at every step — just follow along.</p>
+    </div>
+    <button class="btn" id="rulesBack">Back</button>
   </section>
 
   <section class="scr ctr" id="s-hostname">
     <div class="mid" style="width:100%"><h2>You're the host</h2>
       <input class="inp" id="hostNameIn" placeholder="Your name" maxlength="14" autocomplete="off">
+      <div class="seg"><button id="mNorm" class="sel">Normal</button><button id="mDark">After Dark</button></div>
+      <div style="font-size:.78rem;color:var(--muted);margin-top:6px;text-align:center">After Dark adds drink prompts</div>
       <button class="btn" id="hostCreate">Create the game</button>
       <div class="err" id="hostErr"></div>
     </div>
@@ -109,6 +128,7 @@
 
   <section class="scr ctr" id="s-announce">
     <div id="annBody" style="width:100%"></div>
+    <div class="drink" id="annDrink" hidden></div>
     <button class="btn" id="annBtn" hidden></button>
     <div class="status" id="annStatus"></div>
   </section>
@@ -130,27 +150,32 @@
   firebase.initializeApp(firebaseConfig);
   var db=firebase.database(), auth=firebase.auth();
   var $=function(i){return document.getElementById(i)};
-  function show(id){ ['s-land','s-hostname','s-join','s-lobby','s-reveal','s-wait','s-pick','s-announce'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
+  function show(id){ ['s-land','s-rules','s-hostname','s-join','s-lobby','s-reveal','s-wait','s-pick','s-announce'].forEach(function(s){ $(s).classList.toggle('on',s===id); }); window.scrollTo(0,0); }
   function rid(n){ var s='',c='ABCDEFGHJKLMNPQRSTUVWXYZ'; for(var i=0;i<n;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
   function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
   function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function setDrink(txt){ var d=$('annDrink'); if(!d) return; if(txt){ d.hidden=false; d.textContent=txt; } else d.hidden=true; }
   var FLAV_T=["Murder by moonlight.","Blend in. Betray them all.","Smile. Lie. Win."];
   var FLAV_G=["Find the Traitors.","Trust no one.","Survive the night."];
 
   var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
-  var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[];
+  var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[], dark=false, hostDark=false;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
   auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent=''; } });
 
   $('hostBtn').onclick=function(){ if(authReady){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); } };
   $('joinBtn').onclick=function(){ if(authReady){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); } };
+  $('howBtn').onclick=function(){ show('s-rules'); };
+  $('rulesBack').onclick=function(){ show('s-land'); };
+  $('mNorm').onclick=function(){ hostDark=false; $('mNorm').classList.add('sel'); $('mDark').classList.remove('sel'); };
+  $('mDark').onclick=function(){ hostDark=true; $('mDark').classList.add('sel'); $('mNorm').classList.remove('sel'); };
 
   // ---- host create ----
   $('hostCreate').onclick=function(){
     var n=$('hostNameIn').value.trim(); if(!n){ $('hostErr').textContent='Enter your name.'; return; }
     myName=n; code=rid(4); gref=db.ref('games/'+code); seq=0;
-    gref.child('meta').set({host:myUid,phase:'lobby',seq:0,data:null,ts:firebase.database.ServerValue.TIMESTAMP});
+    gref.child('meta').set({host:myUid,phase:'lobby',seq:0,data:null,dark:hostDark,ts:firebase.database.ServerValue.TIMESTAMP});
     gref.child('players/'+myUid).set({name:myName,alive:true});
     gref.child('players/'+myUid).onDisconnect().remove();
     isHost=true; attachCommon(); attachHost();
@@ -175,7 +200,7 @@
   function attachCommon(){
     gref.child('players').on('value',function(s){ PLAYERS=s.val()||{}; if(!meta.phase||meta.phase==='lobby') renderLobbyView(); });
     gref.child('roles/'+myUid).on('value',function(s){ var v=s.val(); if(v){ myRole=v.role; myMates=v.mates||[]; } });
-    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
+    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; dark=!!m.dark; if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
   }
   function attachHost(){
     gref.child('picks').on('value',function(s){ hostResolveNight(s.val()||{}); });
@@ -281,14 +306,14 @@
       gref.child((type==='kill'?'picks/':'votes/')+myUid).set(chosen);
     };
   }
-  function renderMorning(name,over){ show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is dead</h2><div class="narr">The table wakes to find '+esc(name)+' gone in the night.</div>'; hostAdvance(over,'To the Round Table',startDay); }
-  function renderRoundtable(opener){ show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out — then everyone votes to banish one.</div>'; hostAdvance(null,'Everyone vote',startVote); }
-  function renderBanish(name,role,over){ var wasT=role==='t'; show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent — a Faithful lost.')+'</div>'; hostAdvance(over,'Night falls again',startNight); }
+  function renderMorning(name,over){ show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is dead</h2><div class="narr">The table wakes to find '+esc(name)+' gone in the night.</div>'; setDrink(dark?(esc(name)+', you’re out — finish your drink.'):null); hostAdvance(over,'To the Round Table',startDay); }
+  function renderRoundtable(opener){ show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out — then everyone votes to banish one.</div>'; setDrink(null); hostAdvance(null,'Everyone vote',startVote); }
+  function renderBanish(name,role,over){ var wasT=role==='t'; show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent — a Faithful lost.')+'</div>'; setDrink(dark?(wasT?'Everyone drinks — a Traitor falls.':(esc(name)+', finish your drink on the way out.')):null); hostAdvance(over,'Night falls again',startNight); }
   function renderOver(side,roles){
     var fw=side==='faithful'; var html='<h2 style="color:'+(fw?'var(--faithful)':'var(--traitor)')+'">'+(fw?'The Faithful win':'The Traitors win')+'</h2>';
     html+='<div class="narr">'+(fw?'Every Traitor rooted out.':'The Traitors survived and stole it.')+'</div><ul class="plist" style="pointer-events:none;margin-top:14px">';
     (roles||[]).forEach(function(r){ html+='<li><span>'+esc(r.name)+'</span><span class="you" style="color:'+(r.role==='t'?'var(--traitor)':'var(--faithful)')+'">'+(r.role==='t'?'Traitor':'Faithful')+'</span></li>'; });
-    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; $('annBtn').hidden=true; $('annStatus').textContent='Thanks for playing the preview.';
+    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; setDrink(dark?(fw?'Traitors — finish your drinks.':'Faithful — drink up, you were fooled.'):null); $('annBtn').hidden=true; $('annStatus').textContent='Thanks for playing the preview.';
   }
   function hostAdvance(over,label,fn){
     if(isHost){ $('annBtn').hidden=false; $('annBtn').textContent=over?'See how it ends':label;
