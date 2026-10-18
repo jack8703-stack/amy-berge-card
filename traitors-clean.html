@@ -56,23 +56,23 @@
     <h1>The Traitors</h1>
     <div class="intro">
       <p class="ih">Play on your own phone</p>
-      <p>One person <b>hosts</b> and reads out the code. Everyone else <b>joins</b> with it â€” your role stays secret on your own phone.</p>
+      <p>One person <b>hosts</b> and reads out the code. Everyone else <b>joins</b> with it — your role stays secret on your own phone.</p>
       <p style="color:var(--muted);font-size:.95rem">4+ players. Works on any network.</p>
     </div>
     <button class="btn" id="hostBtn" disabled>Host a game</button>
     <button class="btn ghost" id="joinBtn" disabled>Join a game</button>
     <button class="btn ghost" id="howBtn">How to play</button>
-    <div class="status" id="landStatus">Connectingâ€¦</div>
+    <div class="status" id="landStatus">Connecting…</div>
   </section>
 
   <section class="scr" id="s-rules">
     <div style="margin-top:4px"><h2>How to play</h2></div>
     <div class="intro" style="max-width:34em">
-      <p><b style="color:var(--traitor)">A few of you are secretly Traitors.</b> Everyone else is Faithful â€” nobody knows who's who.</p>
+      <p><b style="color:var(--traitor)">A few of you are secretly Traitors.</b> Everyone else is Faithful — nobody knows who's who.</p>
       <p><b style="color:var(--faithful)">Faithful</b> want to find and banish every Traitor. <b style="color:var(--traitor)">Traitors</b> want to survive without getting caught.</p>
-      <p>Each round: <b>Night</b> â€” the Traitors secretly murder one Faithful. <b>Day</b> â€” everyone argues, then votes to banish one person; their role is revealed.</p>
+      <p>Each round: <b>Night</b> — the Traitors secretly murder one Faithful. <b>Day</b> — everyone argues, then votes to banish one person; their role is revealed.</p>
       <p><b style="color:var(--faithful)">Faithful win</b> by banishing all the Traitors. <b style="color:var(--traitor)">Traitors win</b> the moment they equal the Faithful.</p>
-      <p>Your phone tells you what to do at every step â€” just follow along.</p>
+      <p>Your phone tells you what to do at every step — just follow along.</p>
     </div>
     <button class="btn" id="rulesBack">Back</button>
   </section>
@@ -96,13 +96,13 @@
   </section>
 
   <section class="scr" id="s-lobby">
-    <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">â€”</div></div>
+    <div style="text-align:center"><div class="kick" id="lobbyKick">Game code</div><div class="code" id="lobbyCode">—</div></div>
     <div id="qrBox" hidden style="text-align:center;margin-top:2px">
       <div id="qrCode" style="display:inline-block;background:#ece3cf;padding:12px;border-radius:12px"></div>
-      <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Point a camera here to join â€” no texting needed</div>
+      <div style="color:var(--muted);font-size:.85rem;margin-top:8px">Point a camera here to join — no texting needed</div>
       <button class="btn ghost" id="shareBtn" style="margin-top:10px">Share invite link</button>
     </div>
-    <div class="narr" id="lobbyNarr">Waiting for playersâ€¦</div>
+    <div class="narr" id="lobbyNarr">Waiting for players…</div>
     <ul class="plist" id="lobbyList"></ul>
     <button class="btn" id="startBtn" hidden>Deal the roles</button>
     <div class="status" id="lobbyStatus"></div>
@@ -165,7 +165,7 @@
   var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
   var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[], dark=false, hostDark=false;
 
-  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked â€” check your network.'; });
+  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
   auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
     var hc=(location.hash||'').replace('#','').toUpperCase().replace(/[^A-Z]/g,'');
     if(hc.length>=4 && hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); }
@@ -188,14 +188,14 @@
     var joinUrl=location.href.split('#')[0]+'#'+code;
     $('qrBox').hidden=false;
     try{ $('qrCode').innerHTML=''; new QRCode($('qrCode'),{text:joinUrl,width:150,height:150,colorDark:'#1a1008',colorLight:'#ece3cf',correctLevel:QRCode.CorrectLevel.M}); }catch(e){}
-    $('shareBtn').onclick=function(){ if(navigator.share){ navigator.share({title:'The Traitors',text:'Join my game â€” code '+code,url:joinUrl}).catch(function(){}); } else { try{ navigator.clipboard.writeText(joinUrl); $('lobbyStatus').textContent='Invite link copied!'; }catch(e){ $('lobbyStatus').textContent=joinUrl; } } };
+    $('shareBtn').onclick=function(){ if(navigator.share){ navigator.share({title:'The Traitors',text:'Join my game — code '+code,url:joinUrl}).catch(function(){}); } else { try{ navigator.clipboard.writeText(joinUrl); $('lobbyStatus').textContent='Invite link copied!'; }catch(e){ $('lobbyStatus').textContent=joinUrl; } } };
   };
   // ---- join ----
   $('joinGo').onclick=function(){
     var c=$('joinCode').value.trim().toUpperCase(), nm=$('joinName').value.trim();
     if(c.length<4){ $('joinErr').textContent='Enter the game code.'; return; }
     if(!nm){ $('joinErr').textContent='Enter your name.'; return; }
-    myName=nm; code=c; gref=db.ref('games/'+code); $('joinErr').textContent=''; $('joinStatus').textContent='Joiningâ€¦';
+    myName=nm; code=c; gref=db.ref('games/'+code); $('joinErr').textContent=''; $('joinStatus').textContent='Joining…';
     gref.child('meta').once('value',function(snap){
       if(!snap.exists()){ $('joinErr').textContent='No game with that code.'; $('joinStatus').textContent=''; return; }
       if(snap.val().phase!=='lobby'){ $('joinErr').textContent='That game already started.'; $('joinStatus').textContent=''; return; }
@@ -223,8 +223,8 @@
     var ul=$('lobbyList'); ul.innerHTML='';
     var ids=Object.keys(PLAYERS);
     ids.forEach(function(u){ var li=document.createElement('li'); li.innerHTML='<span></span>'+(PLAYERS[u].host?'':'' ); li.querySelector('span').textContent=PLAYERS[u].name; if(u===(meta.host)){ var t=document.createElement('span');t.className='you';t.textContent='host';li.appendChild(t);} ul.appendChild(li); });
-    if(isHost){ $('lobbyKick').textContent='Game code'; $('lobbyCode').textContent=code; $('lobbyNarr').textContent=ids.length+' here â€” need 4 to start.'; $('startBtn').hidden=ids.length<4; }
-    else { $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=ids.length+' players'; $('lobbyNarr').textContent='Waiting for the host to dealâ€¦'; $('startBtn').hidden=true; }
+    if(isHost){ $('lobbyKick').textContent='Game code'; $('lobbyCode').textContent=code; $('lobbyNarr').textContent=ids.length+' here — need 4 to start.'; $('startBtn').hidden=ids.length<4; }
+    else { $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=ids.length+' players'; $('lobbyNarr').textContent='Waiting for the host to deal…'; $('startBtn').hidden=true; }
     if(!$('s-reveal').classList.contains('on')) show('s-lobby');
   }
 
@@ -291,17 +291,17 @@
     var isT=myRole==='t'; var h=$('roleHold'); h.hidden=false; h.className='hold '+(isT?'t':'g');
     $('roleWord').textContent=isT?'TRAITOR':'FAITHFUL';
     var f=(isT?FLAV_T:FLAV_G)[Math.floor(Math.random()*3)]; if(isT&&myMates.length) f='With you: '+myMates.join(', ');
-    $('roleFlav').textContent=f; $('revealNarr').textContent='Look around â€” who else just found out?';
+    $('roleFlav').textContent=f; $('revealNarr').textContent='Look around — who else just found out?';
   }
   function nightView(){
     if(meAlive()&&myRole==='t'){
       var targets=aliveArr().filter(function(p){ return p.uid!==myUid && myMates.indexOf(p.name)<0; });
-      renderPick('Night','Agree with your fellow Traitors â€” tap who dies tonight.',targets,'kill');
-    } else renderWait('Night falls', meAlive()?'Close your eyes. The Traitors are choosingâ€¦':'Youâ€™re out â€” rest easy.');
+      renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',targets,'kill');
+    } else renderWait('Night falls', meAlive()?'Close your eyes. The Traitors are choosing…':'You’re out — rest easy.');
   }
   function voteView(){
     if(meAlive()){ renderPick('The vote','Tap the name you want to banish.',aliveArr(),'vote'); }
-    else renderWait('The Round Table','Youâ€™re out â€” watch it unfold.');
+    else renderWait('The Round Table','You’re out — watch it unfold.');
   }
   function renderWait(t,n){ show('s-wait'); $('waitTitle').textContent=t; $('waitNarr').textContent=n; $('waitStatus').textContent=''; }
   function renderPick(title,narr,options,type){
@@ -311,23 +311,23 @@
       b.onclick=function(){ chosen=o.uid; Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.classList.remove('sel');}); b.classList.add('sel'); $('pickBtn').hidden=false; };
       li.appendChild(b); ul.appendChild(li); });
     $('pickBtn').onclick=function(){ if(!chosen) return;
-      Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true; $('pickStatus').textContent='Locked in â€” waiting on the othersâ€¦';
+      Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true; $('pickStatus').textContent='Locked in — waiting on the others…';
       gref.child((type==='kill'?'picks/':'votes/')+myUid).set(chosen);
     };
   }
-  function renderMorning(name,over){ show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is dead</h2><div class="narr">The table wakes to find '+esc(name)+' gone in the night.</div>'; setDrink(dark?(esc(name)+', youâ€™re out â€” finish your drink.'):null); hostAdvance(over,'To the Round Table',startDay); }
-  function renderRoundtable(opener){ show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out â€” then everyone votes to banish one.</div>'; setDrink(null); hostAdvance(null,'Everyone vote',startVote); }
-  function renderBanish(name,role,over){ var wasT=role==='t'; show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent â€” a Faithful lost.')+'</div>'; setDrink(dark?(wasT?'Everyone drinks â€” a Traitor falls.':(esc(name)+', finish your drink on the way out.')):null); hostAdvance(over,'Night falls again',startNight); }
+  function renderMorning(name,over){ show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is dead</h2><div class="narr">The table wakes to find '+esc(name)+' gone in the night.</div>'; setDrink(dark?(esc(name)+', you’re out — finish your drink.'):null); hostAdvance(over,'To the Round Table',startDay); }
+  function renderRoundtable(opener){ show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out — then everyone votes to banish one.</div>'; setDrink(null); hostAdvance(null,'Everyone vote',startVote); }
+  function renderBanish(name,role,over){ var wasT=role==='t'; show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent — a Faithful lost.')+'</div>'; setDrink(dark?(wasT?'Everyone drinks — a Traitor falls.':(esc(name)+', finish your drink on the way out.')):null); hostAdvance(over,'Night falls again',startNight); }
   function renderOver(side,roles){
     var fw=side==='faithful'; var html='<h2 style="color:'+(fw?'var(--faithful)':'var(--traitor)')+'">'+(fw?'The Faithful win':'The Traitors win')+'</h2>';
     html+='<div class="narr">'+(fw?'Every Traitor rooted out.':'The Traitors survived and stole it.')+'</div><ul class="plist" style="pointer-events:none;margin-top:14px">';
     (roles||[]).forEach(function(r){ html+='<li><span>'+esc(r.name)+'</span><span class="you" style="color:'+(r.role==='t'?'var(--traitor)':'var(--faithful)')+'">'+(r.role==='t'?'Traitor':'Faithful')+'</span></li>'; });
-    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; setDrink(dark?(fw?'Traitors â€” finish your drinks.':'Faithful â€” drink up, you were fooled.'):null); $('annBtn').hidden=true; $('annStatus').textContent='Thanks for playing the preview.';
+    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; setDrink(dark?(fw?'Traitors — finish your drinks.':'Faithful — drink up, you were fooled.'):null); $('annBtn').hidden=true; $('annStatus').textContent='Thanks for playing the preview.';
   }
   function hostAdvance(over,label,fn){
     if(isHost){ $('annBtn').hidden=false; $('annBtn').textContent=over?'See how it ends':label;
       $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annStatus').textContent=''; if(over) finishOver(over); else fn(); };
-      $('annStatus').textContent='Youâ€™re the host â€” tap when the tableâ€™s ready.';
-    } else { $('annBtn').hidden=true; $('annStatus').textContent='Waiting for the hostâ€¦'; }
+      $('annStatus').textContent='You’re the host — tap when the table’s ready.';
+    } else { $('annBtn').hidden=true; $('annStatus').textContent='Waiting for the host…'; }
   }
 </script>
