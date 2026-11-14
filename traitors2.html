@@ -89,7 +89,8 @@
     <div class="intro" style="max-width:34em">
       <p><b style="color:var(--traitor)">A few of you are secretly Traitors.</b> Everyone else is Faithful — nobody knows who's who.</p>
       <p><b style="color:var(--faithful)">Faithful</b> want to find and banish every Traitor. <b style="color:var(--traitor)">Traitors</b> want to survive without getting caught.</p>
-      <p>Each round: <b>Night</b> — the Traitors secretly murder one Faithful; everyone else keeps a candle lit so no one can tell who's choosing. <b>Day</b> — everyone argues, then votes to banish one person; their role is revealed.</p>
+      <p>Each round: <b>Night</b> — the Traitors secretly murder one Faithful; everyone else keeps a flame lit so no one can tell who's choosing. <b>Day</b> — everyone argues, then votes to banish one person; their role is revealed.</p>
+      <p style="color:var(--gold)"><b>At night, everyone stares at their own flame — heads down.</b> That's the whole trick: if you look up, the table will think you're a Traitor. So keep your eyes on your phone, Faithful or not.</p>
       <p><b>Shields:</b> some nights a shield round opens. Grab one and you can't be murdered that night — but you can still be banished. Watch who lunges for one…</p>
       <p><b style="color:var(--faithful)">Faithful win</b> by banishing all the Traitors. <b style="color:var(--traitor)">Traitors win</b> the moment they equal the Faithful.</p>
     </div>
@@ -411,7 +412,7 @@
 
   // ---- night ----
   function nightView(){
-    if(amCaptain()){ show('s-wait'); $('waitTitle').textContent='Night'; $('waitNarr').textContent='The Traitors are choosing.'; setScript($('waitScript'),'Read aloud','Everyone, candles up — keep them lit. Traitors, choose who dies tonight.'); $('waitStatus').textContent='This advances on its own when the Traitors agree.'; return; }
+    if(amCaptain()){ show('s-wait'); $('waitTitle').textContent='Night'; $('waitNarr').textContent='The Traitors are choosing.'; setScript($('waitScript'),'Read aloud','Everyone — heads down, eyes on your own flame. If you look up, people will think you are a Traitor. Traitors, choose who dies tonight.'); $('waitStatus').textContent='This advances on its own when the Traitors agree.'; return; }
     if(meAlive()&&myRole==='t'){
       var targets=aliveArr().filter(function(p){ return p.uid!==myUid && myMates.indexOf(p.name)<0; });
       renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',targets,'kill');
