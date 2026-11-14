@@ -378,7 +378,7 @@
     var win=null,best=-1; Object.keys(tally).forEach(function(k){ if(tally[k]>best){best=tally[k];win=k;} });
     var b=P.filter(function(p){return p.uid===win;})[0]; if(!b) return;
     b.alive=false; gref.child('players/'+win+'/alive').set(false); gref.child('votes').remove();
-    setMeta('banish',{name:b.name,role:b.role,over:checkWin()});
+    setMeta('banished',{uid:win,name:b.name,role:b.role,over:checkWin()});
   }
 
   // ---- dispatch (all clients) ----
@@ -392,6 +392,7 @@
     else if(ph==='morning') renderMorning(data);
     else if(ph==='day') renderRoundtable(data.opener);
     else if(ph==='vote') voteView();
+    else if(ph==='banished') renderBanished(data);
     else if(ph==='banish') renderBanish(data.name,data.role,data.over);
     else if(ph==='over') renderOver(data.side,data.roles,data.pot);
   }
@@ -494,6 +495,21 @@
     hostAdvance(over,'To the Round Table',startDay);
   }
   function renderRoundtable(opener){ show('s-announce'); $('annBody').innerHTML='<h2>Round Table</h2><div class="narr"><b>'+esc(opener)+'</b> opens. Argue it out — then everyone votes to banish one.</div>'; setDrink(null); if(amCaptain()) setScript($('annScript'),'Read aloud',opener+', you open. Everyone — make your case. Then we vote.'); else $('annScript').innerHTML=''; hostAdvance(null,'Everyone vote',startVote); }
+  function renderBanished(data){ show('s-announce'); setDrink(null); $('annScript').innerHTML='';
+    $('annBody').innerHTML='<h2>'+esc(data.name)+' is banished</h2><div class="narr">The table has spoken — '+esc(data.name)+' holds their card.</div>';
+    if(myUid===data.uid){
+      $('annBtn').hidden=false; $('annBtn').textContent='Turn over my card';
+      $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over}); };
+      $('annBtn2').hidden=true; $('annStatus').textContent='Everyone’s watching — reveal when you’re ready.';
+    } else if(isHost){
+      $('annBtn').hidden=true; $('annBtn2').hidden=false; $('annBtn2').textContent='Reveal for them';
+      $('annBtn2').onclick=function(){ $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over}); };
+      if(amCaptain()) setScript($('annScript'),'Read aloud',data.name+', the table voted to banish you. Turn over your card — show us who you really were.');
+      $('annStatus').textContent=esc(data.name)+' flips their own card — or tap to reveal for them.';
+    } else {
+      $('annBtn').hidden=true; $('annBtn2').hidden=true; $('annStatus').textContent='Waiting for '+esc(data.name)+' to turn it over…';
+    }
+  }
   function renderBanish(name,role,over){ var wasT=role==='t'; show('s-announce'); $('annBody').innerHTML='<h2>'+esc(name)+' is banished</h2><p class="big '+(wasT?'t':'g')+'">'+(wasT?'TRAITOR':'FAITHFUL')+'</p><div class="narr">'+(wasT?'Caught one.':'Innocent — a Faithful lost.')+'</div>'; setDrink(dark?(wasT?'Everyone drinks — a Traitor falls.':(esc(name)+', finish your drink on the way out.')):null); if(amCaptain()) setScript($('annScript'),'Read aloud',name+' is banished — and was '+(wasT?'a TRAITOR. Well caught.':'a FAITHFUL. A terrible loss.')); else $('annScript').innerHTML=''; hostAdvance(over,'Continue',function(){ setMeta('ready',{}); }); }
   function renderOver(side,roles,pot){
     var fw=side==='faithful'; var html='<h2 style="color:'+(fw?'var(--faithful)':'var(--traitor)')+'">'+(fw?'The Faithful win':'The Traitors win')+'</h2>';
