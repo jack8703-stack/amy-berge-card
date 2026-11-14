@@ -210,7 +210,7 @@
 
   var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
   var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[], dark=false, hostDark=false, hostCap=false;
-  var SHIELDS={}, SHIELDED={}, iGrabbed=false, candleTimer=null;
+  var SHIELDS={}, SHIELDED={}, iGrabbed=false, candleTimer=null, nightIntroT=null;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
   auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
@@ -412,11 +412,19 @@
 
   // ---- night ----
   function nightView(){
-    if(amCaptain()){ show('s-wait'); $('waitTitle').textContent='Night'; $('waitNarr').textContent='The Traitors are choosing.'; setScript($('waitScript'),'Read aloud','Everyone — heads down, eyes on your own flame. If you look up, people will think you are a Traitor. Traitors, choose who dies tonight.'); $('waitStatus').textContent='This advances on its own when the Traitors agree.'; return; }
-    if(meAlive()&&myRole==='t'){
-      var targets=aliveArr().filter(function(p){ return p.uid!==myUid && myMates.indexOf(p.name)<0; });
-      renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',targets,'kill');
-    } else { startCandle(); }
+    // shared briefing everyone reads at the same time, right before the flames
+    show('s-wait'); $('waitTitle').textContent='Night falls'; $('waitScript').innerHTML='';
+    $('waitNarr').innerHTML='Heads down — eyes on your own flame. <b style="color:var(--gold)">Look up and the table will think you’re a Traitor.</b>';
+    $('waitStatus').textContent='Get ready…';
+    if(nightIntroT) clearTimeout(nightIntroT);
+    nightIntroT=setTimeout(function(){
+      if(meta.phase!=='night') return;
+      if(amCaptain()){ $('waitTitle').textContent='Night'; $('waitNarr').textContent='The Traitors are choosing.'; setScript($('waitScript'),'Read aloud','Everyone — heads down, eyes on your own flame. If you look up, people will think you are a Traitor. Traitors, choose who dies tonight.'); $('waitStatus').textContent='This advances on its own when the Traitors agree.'; return; }
+      if(meAlive()&&myRole==='t'){
+        var targets=aliveArr().filter(function(p){ return p.uid!==myUid && myMates.indexOf(p.name)<0; });
+        renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',targets,'kill');
+      } else { startCandle(); }
+    },3600);
   }
   // candle: two flames keep drifting; tap the gold one. No app penalty — the social penalty is
   // that anyone who isn't heads-down looks like a Traitor. Pure camouflage, never a game effect.
