@@ -334,7 +334,7 @@
       setTimeout(function(){ if(isHost) setMeta('ready',{first:true}); },5600);
     });
   }
-  function setMeta(phase,data){ seq=(meta.seq||0)+1; gref.child('meta').update({phase:phase,data:data||null,seq:seq}); }
+  function setMeta(phase,data){ seq=(meta.seq||0)+1; var d=data?JSON.parse(JSON.stringify(data)):null; gref.child('meta').update({phase:phase,data:d,seq:seq}); }
   function checkWin(){ var at=P.filter(function(p){return p.alive&&p.role==='t';}).length, ag=P.filter(function(p){return p.alive&&p.role==='g';}).length; if(at===0) return 'faithful'; if(at>=ag) return 'traitors'; return null; }
   function shieldCeiling(){ var n=aliveArr().length; return n<=5?1:(n<=10?2:3); }
 
@@ -499,11 +499,11 @@
     $('annBody').innerHTML='<h2>'+esc(data.name)+' is banished</h2><div class="narr">The table has spoken — '+esc(data.name)+' holds their card.</div>';
     if(myUid===data.uid){
       $('annBtn').hidden=false; $('annBtn').textContent='Turn over my card';
-      $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over}); };
+      $('annBtn').onclick=function(){ $('annBtn').hidden=true; $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over||null}); };
       $('annBtn2').hidden=true; $('annStatus').textContent='Everyone’s watching — reveal when you’re ready.';
     } else if(isHost){
       $('annBtn').hidden=true; $('annBtn2').hidden=false; $('annBtn2').textContent='Reveal for them';
-      $('annBtn2').onclick=function(){ $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over}); };
+      $('annBtn2').onclick=function(){ $('annBtn2').hidden=true; setMeta('banish',{name:data.name,role:data.role,over:data.over||null}); };
       if(amCaptain()) setScript($('annScript'),'Read aloud',data.name+', the table voted to banish you. Turn over your card — show us who you really were.');
       $('annStatus').textContent=esc(data.name)+' flips their own card — or tap to reveal for them.';
     } else {
