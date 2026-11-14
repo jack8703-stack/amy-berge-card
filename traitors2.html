@@ -210,13 +210,42 @@
 
   var myUid=null, authReady=false, isHost=false, code=null, gref=null, myName='';
   var myRole=null, myMates=[], PLAYERS={}, meta={}, lastSeq=-1, seq=0, P=[], dark=false, hostDark=false, hostCap=false;
-  var SHIELDS={}, SHIELDED={}, iGrabbed=false, candleTimer=null, nightIntroT=null;
+  var SHIELDS={}, SHIELDED={}, iGrabbed=false, candleTimer=null, nightIntroT=null, odCancelled=false, wakeLock=null;
 
-  auth.setPersistence(firebase.auth.Auth.Persistence.SESSION).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
-  auth.onAuthStateChanged(function(u){ if(u){ myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
+  function saveGame(c){ try{ localStorage.setItem('tr_game',c); }catch(e){} }
+  function clearGame(){ try{ localStorage.removeItem('tr_game'); }catch(e){} }
+  function reqWake(){ try{ if('wakeLock' in navigator && document.visibilityState==='visible'){ navigator.wakeLock.request('screen').then(function(w){ wakeLock=w; w.addEventListener&&w.addEventListener('release',function(){}); }).catch(function(){}); } }catch(e){} }
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible'){ reqWake(); } });
+
+  // SESSION only when ?s=1 (for multi-tab testing); real play uses LOCAL so a uid survives a reload/lock.
+  var persist = /[?&]s=1/.test(location.search) ? firebase.auth.Auth.Persistence.SESSION : firebase.auth.Auth.Persistence.LOCAL;
+  auth.setPersistence(persist).then(function(){ return auth.signInAnonymously(); }).catch(function(e){ $('landStatus').textContent='Connection blocked — check your network.'; });
+  auth.onAuthStateChanged(function(u){ if(!u) return; myUid=u.uid; authReady=true; $('hostBtn').disabled=false; $('joinBtn').disabled=false; $('landStatus').textContent='';
     var hc=(location.hash||'').replace('#','').toUpperCase().replace(/[^A-Z]/g,'');
-    if(hc.length>=4 && hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); }
-  } });
+    var saved=null; try{ saved=localStorage.getItem('tr_game'); }catch(e){}
+    if(saved && (!hc || hc===saved)){ tryResume(saved, hc); return; }
+    if(saved && hc && hc!==saved){ clearGame(); }
+    fallbackJoin(hc);
+  });
+  function fallbackJoin(hc){ if(hc&&hc.length>=4&&hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); } }
+  function tryResume(c, hc){ $('landStatus').textContent='Reconnecting…';
+    var g=db.ref('games/'+c);
+    g.child('meta').once('value',function(s){
+      var m=s.val();
+      if(!m || m.phase==='over'){ clearGame(); $('landStatus').textContent=''; fallbackJoin(hc); return; }
+      g.child('players/'+myUid).once('value',function(ps){
+        if(!ps.exists()){ clearGame(); $('landStatus').textContent=''; fallbackJoin(hc); return; }
+        code=c; gref=g; myName=(ps.val()&&ps.val().name)||''; isHost=(m.host===myUid); lastSeq=-1;
+        $('landStatus').textContent='';
+        if(m.phase==='lobby'){ odCancelled=false; gref.child('players/'+myUid).onDisconnect().remove(); } else { odCancelled=true; }
+        if(isHost){ rebuildHostState(function(){ attachCommon(); attachHost(); }); } else { attachCommon(); }
+        reqWake();
+      });
+    },function(){ $('landStatus').textContent=''; fallbackJoin(hc); });
+  }
+  function rebuildHostState(cb){ gref.child('players').once('value',function(ps){ var pl=ps.val()||{}; gref.child('roles').once('value',function(rs){ var roles=rs.val()||{};
+      P=Object.keys(pl).filter(function(u){return !pl[u].captain;}).map(function(u){ return {uid:u,name:pl[u].name,role:(roles[u]&&roles[u].role)||'g',alive:pl[u].alive!==false}; });
+      if(cb) cb(); }); }); }
 
   $('hostBtn').onclick=function(){ if(authReady){ isHost=true; show('s-hostname'); setTimeout(function(){$('hostNameIn').focus();},50); } };
   $('joinBtn').onclick=function(){ if(authReady){ isHost=false; show('s-join'); setTimeout(function(){$('joinCode').focus();},50); } };
@@ -235,7 +264,7 @@
     gref.child('meta').set({host:myUid,captain:hostCap,phase:'lobby',seq:0,data:null,dark:hostDark,pot:pot,ts:firebase.database.ServerValue.TIMESTAMP});
     gref.child('players/'+myUid).set({name:myName,alive:true,captain:hostCap});
     gref.child('players/'+myUid).onDisconnect().remove();
-    isHost=true; attachCommon(); attachHost();
+    isHost=true; odCancelled=false; saveGame(code); reqWake(); attachCommon(); attachHost();
     $('lobbyCode').textContent=code; show('s-lobby');
     var joinUrl=location.href.split('#')[0]+'#'+code;
     $('qrBox').hidden=false;
@@ -253,7 +282,7 @@
       if(snap.val().phase!=='lobby'){ $('joinErr').textContent='That game already started.'; $('joinStatus').textContent=''; return; }
       gref.child('players/'+myUid).set({name:myName,alive:true});
       gref.child('players/'+myUid).onDisconnect().remove();
-      isHost=false; attachCommon(); $('joinStatus').textContent='Joined!';
+      isHost=false; odCancelled=false; saveGame(code); reqWake(); attachCommon(); $('joinStatus').textContent='Joined!';
     },function(){ $('joinErr').textContent='Could not connect.'; $('joinStatus').textContent=''; });
   };
 
@@ -263,7 +292,9 @@
     gref.child('roles/'+myUid).on('value',function(s){ var v=s.val(); if(v){ myRole=v.role; myMates=v.mates||[]; } });
     gref.child('shielded').on('value',function(s){ SHIELDED=s.val()||{}; });
     gref.child('shields').on('value',function(s){ SHIELDS=s.val()||{}; if(meta.phase==='shieldgrab') updateShieldCount(); });
-    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; dark=!!m.dark; updatePot(); if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
+    gref.child('meta').on('value',function(s){ var m=s.val(); if(!m) return; meta=m; dark=!!m.dark; updatePot();
+      if(m.phase && m.phase!=='lobby' && !odCancelled && gref){ odCancelled=true; try{ gref.child('players/'+myUid).onDisconnect().cancel(); }catch(e){} }
+      if(m.seq!==lastSeq){ lastSeq=m.seq; dispatch(m.phase,m.data||{}); } });
   }
   function attachHost(){
     gref.child('picks').on('value',function(s){ hostResolveNight(s.val()||{}); });
@@ -470,7 +501,7 @@
     if(pot>0) html+='<div class="drink" style="margin:14px auto 0">💰 Pot: $'+pot+' — '+(fw?'the Faithful':'the Traitors')+' split it.</div>';
     html+='<ul class="plist" style="pointer-events:none;margin-top:14px">';
     (roles||[]).forEach(function(r){ html+='<li><span>'+esc(r.name)+'</span><span class="you" style="color:'+(r.role==='t'?'var(--traitor)':'var(--faithful)')+'">'+(r.role==='t'?'Traitor':'Faithful')+'</span></li>'; });
-    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; $('annScript').innerHTML=''; setDrink(dark?(fw?'Traitors — finish your drinks.':'Faithful — drink up, you were fooled.'):null); $('annBtn').hidden=true; $('annBtn2').hidden=true; $('annStatus').textContent='Thanks for playing.';
+    html+='</ul>'; show('s-announce'); $('annBody').innerHTML=html; $('annScript').innerHTML=''; setDrink(dark?(fw?'Traitors — finish your drinks.':'Faithful — drink up, you were fooled.'):null); $('annBtn').hidden=true; $('annBtn2').hidden=true; $('annStatus').textContent='Thanks for playing.'; clearGame();
   }
   function hostAdvance(over,label,fn){
     $('annBtn2').hidden=true;

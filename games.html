@@ -92,7 +92,7 @@
   function updateLinks(){
     document.querySelectorAll('.game.live').forEach(function(a){
       var base=a.getAttribute('data-base');
-      if(base==='traitors'){ a.href = (mode==='adults'?'traitors.html':'traitors-clean.html'); }
+      if(base==='traitors'){ a.href = 'traitors2.html'; }
       else { a.href = base+'?m='+mode; }
     });
     document.getElementById('mFam').classList.toggle('sel',mode==='family');
