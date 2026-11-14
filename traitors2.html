@@ -54,16 +54,17 @@
   .potBadge{text-align:center;color:var(--gold);font-family:var(--serif);font-size:1.05rem;letter-spacing:.04em;min-height:1.3em;margin-bottom:2px}
   .script{margin-top:18px;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:14px 16px;text-align:left;font-family:var(--serif);font-size:1.25rem;line-height:1.4;color:var(--cream)}
   .script .lbl{font-family:var(--sans);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:6px}
-  /* candle */
-  .candleWrap{margin:26px auto 0;width:140px;height:230px;position:relative;cursor:pointer;user-select:none;-webkit-user-select:none}
-  .flame{position:absolute;left:50%;top:18px;transform:translateX(-50%) scaleY(var(--life,1));transform-origin:bottom center;
-    width:30px;height:70px;border-radius:50% 50% 48% 48%/62% 62% 38% 38%;
-    background:radial-gradient(circle at 50% 72%,#fff7d6 0%,#ffd864 30%,#ff9b2f 62%,#e0531c 100%);
-    box-shadow:0 0 28px 10px rgba(255,160,50,calc(.55*var(--life,1)));transition:transform .18s ease, box-shadow .18s ease, opacity .3s}
-  .flame.out{opacity:.12;box-shadow:none}
-  .wick{position:absolute;left:50%;top:84px;transform:translateX(-50%);width:3px;height:14px;background:#2a2017;border-radius:2px}
-  .candleBody{position:absolute;left:50%;top:94px;transform:translateX(-50%);width:66px;height:128px;border-radius:10px 10px 6px 6px;
-    background:linear-gradient(180deg,#efe6cf,#cdbf9c);box-shadow:inset -10px 0 14px rgba(0,0,0,.18),inset 10px 0 14px rgba(255,255,255,.25)}
+  /* candle — moving flame you have to chase */
+  .nightbox{position:relative;width:100%;max-width:340px;height:330px;margin:20px auto 0;border-radius:18px;border:1px solid var(--line);
+    background:radial-gradient(circle at 50% 45%,#15110a,#080604);overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+  .ember{position:absolute;left:50%;top:50%;width:54px;height:54px;border-radius:50%;cursor:pointer;
+    background:radial-gradient(circle at 50% 56%,#fff7d6 0%,#ffd864 32%,#ff9b2f 60%,#e0531c 100%);
+    box-shadow:0 0 26px 10px rgba(255,160,50,.6);transition:left .5s cubic-bezier(.45,.05,.3,1),top .5s cubic-bezier(.45,.05,.3,1),transform .12s,box-shadow .35s,opacity .35s}
+  .ember.dim{box-shadow:0 0 9px 3px rgba(255,160,50,.22);opacity:.45}
+  .ember:active{transform:scale(.84)}
+  .ember.cool{background:radial-gradient(circle at 50% 56%,#eaf4ff 0%,#aad2ff 32%,#5b9bff 60%,#2f5fd0 100%);box-shadow:0 0 24px 9px rgba(90,150,255,.5)}
+  .ember.wrong{animation:emberwrong .32s}
+  @keyframes emberwrong{0%,100%{margin-left:0}25%{margin-left:-8px}75%{margin-left:8px}}
   .counter{font-family:var(--serif);font-size:2.2rem;color:var(--gold);text-align:center;margin-top:6px}
 </style>
 
@@ -150,13 +151,9 @@
 
   <section class="scr ctr" id="s-candle">
     <h2 id="candleTitle">Night falls</h2>
-    <div class="narr" id="candleNarr">Keep your candle lit until dawn. Tap it.</div>
-    <div class="candleWrap" id="candleWrap">
-      <div class="flame" id="flame"></div>
-      <div class="wick"></div>
-      <div class="candleBody"></div>
-    </div>
-    <div class="status" id="candleStatus">Tap to keep it burning…</div>
+    <div class="narr" id="candleNarr">Tap the <b style="color:var(--gold)">gold</b> flame as it drifts — ignore the blue. Eyes down.</div>
+    <div class="nightbox" id="nightbox"><div class="ember" id="ember"></div><div class="ember cool" id="ember2"></div></div>
+    <div class="status" id="candleStatus">They keep moving — keep watching yours.</div>
   </section>
 
   <section class="scr ctr" id="s-wait">
@@ -418,17 +415,20 @@
     if(meAlive()&&myRole==='t'){
       var targets=aliveArr().filter(function(p){ return p.uid!==myUid && myMates.indexOf(p.name)<0; });
       renderPick('Night','Agree with your fellow Traitors — tap who dies tonight.',targets,'kill');
-    } else { startCandle(meAlive()?'Keep your candle lit until dawn. Tap it.':"You're out — but keep tapping so no one can tell."); }
+    } else { startCandle(); }
   }
-  // candle fidget
-  function startCandle(msg){ show('s-candle'); $('candleNarr').textContent=msg||'Keep your candle lit. Tap it.';
-    var life=1; var fl=$('flame'); fl.classList.remove('out'); fl.style.setProperty('--life',1);
-    var wrap=$('candleWrap');
-    wrap.onclick=function(){ life=1; fl.classList.remove('out'); fl.style.setProperty('--life',1); };
-    stopCandle();
-    candleTimer=setInterval(function(){ life-=0.035; if(life<=0.05){ life=0.05; fl.classList.add('out'); } else fl.classList.remove('out'); fl.style.setProperty('--life',life.toFixed(2)); },150);
+  // candle: two flames keep drifting; tap the gold one. No app penalty — the social penalty is
+  // that anyone who isn't heads-down looks like a Traitor. Pure camouflage, never a game effect.
+  function startCandle(msg){ stopCandle(); show('s-candle'); if(msg) $('candleNarr').textContent=msg;
+    var box=$('nightbox'), em=$('ember'), em2=$('ember2'); if(!box||!em) return;
+    function pos(el){ var w=box.clientWidth||320, h=box.clientHeight||320; el.style.left=Math.round(Math.random()*(w-60)+3)+'px'; el.style.top=Math.round(Math.random()*(h-60)+3)+'px'; }
+    function placeAll(){ pos(em); if(em2) pos(em2); }
+    placeAll();
+    em.onclick=function(e){ if(e&&e.stopPropagation)e.stopPropagation(); placeAll(); };
+    if(em2) em2.onclick=function(e){ if(e&&e.stopPropagation)e.stopPropagation(); em2.classList.remove('wrong'); void em2.offsetWidth; em2.classList.add('wrong'); };
+    candleTimer=setInterval(placeAll,1100);
   }
-  function stopCandle(){ if(candleTimer){ clearInterval(candleTimer); candleTimer=null; } }
+  function stopCandle(){ if(candleTimer){ clearInterval(candleTimer); candleTimer=null; } var em=$('ember'),em2=$('ember2'); if(em) em.onclick=null; if(em2) em2.onclick=null; }
 
   function voteView(){
     if(amCaptain()){ show('s-wait'); $('waitTitle').textContent='The vote'; $('waitNarr').textContent='Everyone is voting to banish.'; setScript($('waitScript'),'Read aloud','Time to vote. On your phone, tap the name you want banished. This advances when everyone has voted.'); $('waitStatus').textContent=''; return; }
@@ -445,7 +445,7 @@
       Array.prototype.forEach.call(ul.querySelectorAll('button'),function(x){x.disabled=true;}); $('pickBtn').hidden=true;
       if(type==='kill'){ $('pickStatus').textContent='Locked in — keep your face still…'; } else $('pickStatus').textContent='Locked in — waiting on the others…';
       gref.child((type==='kill'?'picks/':'votes/')+myUid).set(chosen);
-      if(type==='kill'){ setTimeout(function(){ startCandle('Your choice is cast. Keep your candle lit so no one can tell.'); },700); }
+      if(type==='kill'){ setTimeout(function(){ startCandle(); },700); }
     };
   }
   function renderMorning(data){ var name=data.deadName, over=data.over, blocked=data.blocked; show('s-announce'); $('annScript').innerHTML='';
