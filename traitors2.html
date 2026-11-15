@@ -29,6 +29,9 @@
   .plist{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
   .plist li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 15px;font-family:var(--serif);font-size:1.25rem;display:flex;justify-content:space-between;align-items:center}
   .plist li .you{font-family:var(--sans);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+  .plist li .prt{display:flex;align-items:center;gap:10px}
+  .plist li .kickbtn{background:none;border:1px solid var(--line);color:var(--muted);width:30px;height:30px;border-radius:50%;font-size:.85rem;line-height:1;cursor:pointer;padding:0;font-family:var(--sans)}
+  .plist li .kickbtn:active{transform:translateY(1px)}
   .choose{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
   .choose button{width:100%;text-align:left;padding:15px 18px;border-radius:12px;border:1px solid var(--line);background:var(--panel);color:var(--cream);font-family:var(--serif);font-size:1.35rem;cursor:pointer}
   .choose button.sel{border-color:var(--gold);background:var(--panel2)}
@@ -213,6 +216,8 @@
   var SHIELDS={}, SHIELDED={}, iGrabbed=false, candleTimer=null, nightIntroT=null, odCancelled=false, wakeLock=null;
 
   function saveGame(c){ try{ localStorage.setItem('tr_game',c); }catch(e){} }
+  function saveName(n){ try{ localStorage.setItem('tr_name',n||''); }catch(e){} }
+  function loadName(){ try{ return localStorage.getItem('tr_name')||''; }catch(e){ return ''; } }
   function clearGame(){ try{ localStorage.removeItem('tr_game'); }catch(e){} }
   function reqWake(){ try{ if('wakeLock' in navigator && document.visibilityState==='visible'){ navigator.wakeLock.request('screen').then(function(w){ wakeLock=w; w.addEventListener&&w.addEventListener('release',function(){}); }).catch(function(){}); } }catch(e){} }
   document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible'){ reqWake(); } });
@@ -227,17 +232,20 @@
     if(saved && hc && hc!==saved){ clearGame(); }
     fallbackJoin(hc);
   });
-  function fallbackJoin(hc){ if(hc&&hc.length>=4&&hc.length<=5){ isHost=false; $('joinCode').value=hc; show('s-join'); setTimeout(function(){$('joinName').focus();},50); } }
+  function fallbackJoin(hc){ if(hc&&hc.length>=4&&hc.length<=5){ isHost=false; $('joinCode').value=hc; if(!$('joinName').value) $('joinName').value=loadName(); show('s-join'); setTimeout(function(){ ($('joinName').value?$('joinGo'):$('joinName')).focus&&$('joinName').focus(); },50); } }
   function tryResume(c, hc){ $('landStatus').textContent='Reconnecting…';
     var g=db.ref('games/'+c);
     g.child('meta').once('value',function(s){
       var m=s.val();
       if(!m || m.phase==='over'){ clearGame(); $('landStatus').textContent=''; fallbackJoin(hc); return; }
       g.child('players/'+myUid).once('value',function(ps){
-        if(!ps.exists()){ clearGame(); $('landStatus').textContent=''; fallbackJoin(hc); return; }
-        code=c; gref=g; myName=(ps.val()&&ps.val().name)||''; isHost=(m.host===myUid); lastSeq=-1;
+        var exists=ps.exists();
+        // If my seat is gone but the game is still in the lobby, re-seat me (phone sleep / reload shouldn't eject me).
+        if(!exists && m.phase!=='lobby'){ clearGame(); $('landStatus').textContent=''; fallbackJoin(hc); return; }
+        code=c; gref=g; isHost=(m.host===myUid); lastSeq=-1; odCancelled=true;
+        myName=(exists&&ps.val()&&ps.val().name)||loadName()||'';
+        if(!exists){ var seat={name:myName,alive:true}; if(isHost&&m.captain) seat.captain=true; g.child('players/'+myUid).set(seat); }
         $('landStatus').textContent='';
-        if(m.phase==='lobby'){ odCancelled=false; gref.child('players/'+myUid).onDisconnect().remove(); } else { odCancelled=true; }
         if(isHost){ rebuildHostState(function(){ attachCommon(); attachHost(); }); } else { attachCommon(); }
         reqWake();
       });
@@ -263,8 +271,7 @@
     myName=n; code=rid(4); gref=db.ref('games/'+code); seq=0;
     gref.child('meta').set({host:myUid,captain:hostCap,phase:'lobby',seq:0,data:null,dark:hostDark,pot:pot,ts:firebase.database.ServerValue.TIMESTAMP});
     gref.child('players/'+myUid).set({name:myName,alive:true,captain:hostCap});
-    gref.child('players/'+myUid).onDisconnect().remove();
-    isHost=true; odCancelled=false; saveGame(code); reqWake(); attachCommon(); attachHost();
+    isHost=true; odCancelled=true; saveGame(code); saveName(myName); reqWake(); attachCommon(); attachHost();
     $('lobbyCode').textContent=code; show('s-lobby');
     var joinUrl=location.href.split('#')[0]+'#'+code;
     $('qrBox').hidden=false;
@@ -281,8 +288,7 @@
       if(!snap.exists()){ $('joinErr').textContent='No game with that code.'; $('joinStatus').textContent=''; return; }
       if(snap.val().phase!=='lobby'){ $('joinErr').textContent='That game already started.'; $('joinStatus').textContent=''; return; }
       gref.child('players/'+myUid).set({name:myName,alive:true});
-      gref.child('players/'+myUid).onDisconnect().remove();
-      isHost=false; odCancelled=false; saveGame(code); reqWake(); attachCommon(); $('joinStatus').textContent='Joined!';
+      isHost=false; odCancelled=true; saveGame(code); saveName(myName); reqWake(); attachCommon(); $('joinStatus').textContent='Joined!';
     },function(){ $('joinErr').textContent='Could not connect.'; $('joinStatus').textContent=''; });
   };
 
@@ -311,8 +317,12 @@
     var ul=$('lobbyList'); ul.innerHTML='';
     var ids=Object.keys(PLAYERS); var pc=ids.filter(playing).length;
     ids.forEach(function(u){ var li=document.createElement('li'); var nm=document.createElement('span'); nm.textContent=PLAYERS[u].name; li.appendChild(nm);
+      var right=document.createElement('span'); right.className='prt';
       var tag=''; if(PLAYERS[u].captain) tag='captain'; else if(u===meta.host) tag='host';
-      if(tag){ var t=document.createElement('span');t.className='you';t.textContent=tag;li.appendChild(t);} ul.appendChild(li); });
+      if(tag){ var t=document.createElement('span');t.className='you';t.textContent=tag;right.appendChild(t);}
+      if(isHost && u!==myUid){ var k=document.createElement('button'); k.type='button'; k.className='kickbtn'; k.textContent='✕'; k.title='Remove from lobby';
+        k.onclick=function(){ gref.child('players/'+u).remove(); gref.child('roles/'+u).remove(); }; right.appendChild(k); }
+      li.appendChild(right); ul.appendChild(li); });
     if(isHost){ $('lobbyKick').textContent='Game code'; $('lobbyCode').textContent=code;
       $('lobbyNarr').textContent=pc+' playing — need 4 to start.'+(meta.captain?' (You run it.)':''); $('startBtn').hidden=pc<4; }
     else { $('lobbyKick').textContent='In the lobby'; $('lobbyCode').textContent=pc+' playing'; $('lobbyNarr').textContent='Waiting for the host to deal…'; $('startBtn').hidden=true; }
